@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using CronicleClient.Models;
@@ -25,7 +24,7 @@ internal static class Common
     {
       throw new Exception(
         string.Format(
-          System.Globalization.CultureInfo.InvariantCulture,
+          CultureInfo.InvariantCulture,
           "Cronicle API error: ({0}){1} ",
           response.Code,
           response.Description));

@@ -11,17 +11,8 @@ using Microsoft.Extensions.Logging;
 
 namespace CronicleClient;
 
-public class CronicleEvent
+public class CronicleEvent(HttpClient httpClient, ILogger logger)
 {
-  private readonly ILogger _logger;
-  private readonly HttpClient _httpClient;
-
-  public CronicleEvent(HttpClient httpClient, ILogger logger)
-  {
-    _logger = logger;
-    _httpClient = httpClient;
-  }
-
   private static void EnsureValidEventData(EventData eventData)
   {
     // These are required fields
@@ -45,8 +36,8 @@ public class CronicleEvent
   
   public async Task<IEnumerable<EventData>> GetSchedule(CancellationToken cancellationToken = default)
   {
-    _logger.LogDebug($"Fetching all events Cronicle");
-    var resp = await _httpClient.GetFromJsonAsync<ListEventsResponse>($"get_schedule/v1", cancellationToken);
+    logger.LogDebug($"Fetching all events Cronicle");
+    var resp = await httpClient.GetFromJsonAsync<ListEventsResponse>($"get_schedule/v1", cancellationToken);
     resp.EnsureSuccessStatusCode();
     return resp?.EventDataCollection ?? new List<EventData>().AsEnumerable();
   }
@@ -59,8 +50,8 @@ public class CronicleEvent
   /// <returns></returns>
   public async Task<EventData?> GetById(string eventId, CancellationToken cancellationToken = default)
   {
-    _logger.LogDebug($"Fetching event '{eventId}' from Cronicle");
-    var resp = await _httpClient.GetFromJsonAsync<GetEventResponse>($"get_event/v1?id={eventId}", cancellationToken);
+    logger.LogDebug($"Fetching event '{eventId}' from Cronicle");
+    var resp = await httpClient.GetFromJsonAsync<GetEventResponse>($"get_event/v1?id={eventId}", cancellationToken);
     resp.EnsureSuccessStatusCode();
     return resp?.EventData;
   }
@@ -73,11 +64,11 @@ public class CronicleEvent
   /// <returns></returns>
   public async Task<EventData?> GetByTitle(string eventTitle, CancellationToken cancellationToken = default)
   {
-    _logger.LogDebug($"Fetching event '{eventTitle}' from Cronicle");
+    logger.LogDebug($"Fetching event '{eventTitle}' from Cronicle");
     
     var content = new StringContent("{\"title\":\""+eventTitle+"\"}", System.Text.Encoding.UTF8, "application/json");
     
-    var resp = await _httpClient.PostAsync("get_event/v1", content, cancellationToken);
+    var resp = await httpClient.PostAsync("get_event/v1", content, cancellationToken);
     resp.EnsureSuccessStatusCode();
     
     var cronicleResponse = await resp.Content.ReadFromJsonAsync<GetEventResponse>(cancellationToken: cancellationToken);
@@ -98,8 +89,8 @@ public class CronicleEvent
   {
     EnsureValidEventData(eventData);
     
-    _logger.LogDebug($"Creating event '{eventData.Title}' in Cronicle");
-    var resp = await _httpClient.PostAsJsonAsync("create_event/v1", eventData, cancellationToken);
+    logger.LogDebug($"Creating event '{eventData.Title}' in Cronicle");
+    var resp = await httpClient.PostAsJsonAsync("create_event/v1", eventData, cancellationToken);
     resp.EnsureSuccessStatusCode();
     
     var cronicleResponse = await resp.Content.ReadFromJsonAsync<CreateEventResponse>(cancellationToken: cancellationToken);
@@ -127,10 +118,10 @@ public class CronicleEvent
   {
     EnsureValidEventData(eventData);
     
-    _logger.LogDebug($"Updating event '{eventData.Title}' in Cronicle");
+    logger.LogDebug($"Updating event '{eventData.Title}' in Cronicle");
     var requestPathWithQuery = $"update_event/v1?id={eventData.Id}&reset_cursor={(resetCursor ? "1" : "0")}&abort_jobs={(abortJobs ? "1" : "0")}";
     
-    var resp = await _httpClient.PutAsJsonAsync(requestPathWithQuery, eventData, cancellationToken);
+    var resp = await httpClient.PutAsJsonAsync(requestPathWithQuery, eventData, cancellationToken);
     resp.EnsureSuccessStatusCode();
 
     var cronicleResponse = await resp.Content.ReadFromJsonAsync<BaseEventResponse>(cancellationToken: cancellationToken);
@@ -148,11 +139,11 @@ public class CronicleEvent
   {
     if(eventId == default) throw new ArgumentNullException(nameof(eventId));
     
-    _logger.LogDebug($"Deleting event '{eventId}' in Cronicle");
+    logger.LogDebug($"Deleting event '{eventId}' in Cronicle");
     
     var content = new StringContent("{\"id\":\""+eventId+"\"}", System.Text.Encoding.UTF8, "application/json");
     
-    var resp = await _httpClient.PostAsync($"delete_event/v1", content, cancellationToken);
+    var resp = await httpClient.PostAsync($"delete_event/v1", content, cancellationToken);
     resp.EnsureSuccessStatusCode();
 
     var cronicleResponse = await resp.Content.ReadFromJsonAsync<BaseEventResponse>(cancellationToken: cancellationToken);

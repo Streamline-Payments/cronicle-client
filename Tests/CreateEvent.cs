@@ -72,6 +72,9 @@ public class CreateEvent
 
     // Assert
     newEventId.Should().NotBeEmpty();
+    
+    // Cleanup
+    await _cronicleClient.Event.Delete(eventId: newEventId, cancellationToken: _cancellationToken);
   }
   
   [Fact(DisplayName = "Create a new event and validate it exists in Cronicle")]
@@ -108,5 +111,8 @@ public class CreateEvent
     eventDetails!.Target.Should().Be(newEvent.Target);
     eventDetails!.Timing.Should().BeEquivalentTo(newEvent.Timing);
     eventDetails.Enabled.Should().BeTrue();
+    
+    // Cleanup
+    await _cronicleClient.Event.Delete(eventId: newEventId, cancellationToken: _cancellationToken);
   }
 }

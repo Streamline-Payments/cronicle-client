@@ -4,11 +4,11 @@ using Microsoft.Extensions.Logging;
 
 namespace CronicleClient;
 
-public class Client(Uri baseUrl, string apiToken, ILogger logger)
+public class Client(string baseUrl, string apiToken, ILogger logger)
 {
   private readonly HttpClient _apiClient = new()
   {
-    BaseAddress = baseUrl,
+    BaseAddress = new Uri(string.Concat(baseUrl.TrimEnd('/'),"/api/app")),
     DefaultRequestHeaders = { { "X-API-Key", apiToken } }
   };
 

@@ -33,13 +33,13 @@ public record JobData : EventData
   /// The main PID of the job process that was spawned.
   /// </summary>
   [JsonPropertyName("pid")]
-  public string? Pid { get; set; }
+  public int? Pid { get; set; }
   
   /// <summary>
   /// Current progress of the job, from 0.0 to 1.0, as reported by the Plugin (optional).
   /// </summary>
   [JsonPropertyName("progress")]
-  public string? Progress { get; set; }
+  public decimal? Progress { get; set; }
   
   /// <summary>
   /// Will be set to 1 when the job is complete, omitted if still in progress.
@@ -59,7 +59,13 @@ public record JobData : EventData
   /// </summary>
   [JsonPropertyName("description")]
   public string? Description { get; set; }
-  
+
+  /// <summary>
+  /// If the job is abort, this will contain the reason. Only applicable for aborted jobs.
+  /// </summary>
+  [JsonPropertyName("abort_reason")]
+  public string? AbortReason { get; set; }
+
   /// <summary>
   /// Performance metrics for the job, if reported by the Plugin (optional). Only applicable for completed jobs.
   /// </summary>

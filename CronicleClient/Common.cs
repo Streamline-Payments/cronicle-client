@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -15,9 +16,9 @@ internal static class Common
       throw new Exception("No response was provided from Cronicle server");
     }
 
-    if (string.Equals(response.Code, "event") && response.Description?.Contains("Failed to locate event") == true)
+    if ((string.Equals(response.Code, "event") && response.Description?.Contains("Failed to locate event") == true ) || (string.Equals(response.Code, "job") && response.Description?.Contains("Failed to locate job") == true))
     {
-      return;
+      throw new KeyNotFoundException();
     }
     
     if (!string.Equals(response.Code, "0"))

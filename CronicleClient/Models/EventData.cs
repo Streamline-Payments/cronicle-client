@@ -146,12 +146,14 @@ public record EventData
   [JsonPropertyName("notify_success")] 
   [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] 
   public string? NotifySuccess { get; set; }
-  /// <summary>
-  /// An object containing the Plugin's custom parameters, filled out with values from the Event Editor.
-  /// </summary>
-  [JsonPropertyName("params")] 
-  [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] 
-  public Dictionary<string, string>? Parameters { get; set; }
+    /// <summary>
+    /// An object containing the Plugin's custom parameters, filled out with values from the Event Editor.
+    /// </summary>
+    // TODO: convert this to be an object
+    //[JsonPropertyName("params")]
+    //[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    //public Dictionary<string, object>? Parameters { get; set; }
+
   /// <summary>
   /// The ID of the Plugin which will run jobs for the event.
   /// </summary>

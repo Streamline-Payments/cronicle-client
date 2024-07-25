@@ -14,4 +14,5 @@ public class Client(string baseUrl, string apiToken, ILogger logger)
 
   public CronicleEvent Event => new(_apiClient, logger);
   public CronicleJob Job => new(_apiClient, logger);
+  public CronicleMaster Master => new(_apiClient, logger);
 }

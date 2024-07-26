@@ -5,6 +5,7 @@ using Xunit.Abstractions;
 
 namespace Tests;
 
+[Collection("Active Jobs")]
 public class GetActiveJobs(ITestOutputHelper outputHelper)
 {
   private readonly CancellationToken _cancellationToken = new CancellationTokenSource().Token;
@@ -45,7 +46,7 @@ public class GetActiveJobs(ITestOutputHelper outputHelper)
     var eventId = await _cronicleClient.Event.Create(newEvent, _cancellationToken);
     eventId.Should().NotBeEmpty();
 
-    var jobIds = await _cronicleClient.Event.RunEventById(eventId);
+    var jobIds = await _cronicleClient.Event.RunEventById(eventId, _cancellationToken);
 
     // Act
     var activeJobs = await _cronicleClient.Job.GetActiveJobs(_cancellationToken);
@@ -54,12 +55,11 @@ public class GetActiveJobs(ITestOutputHelper outputHelper)
     activeJobs.Should().NotBeNull();
 
     // Cleanup
-    await _cronicleClient.Job.AbortJob(jobIds.First());
-    await Task.Delay(1000);
+    await _cronicleClient.Job.AbortJob(jobIds.First(), _cancellationToken);
+    await Task.Delay(2000, _cancellationToken);
     await _cronicleClient.Event.Delete(eventId, _cancellationToken);
   }
-
-
+  
   [Fact(DisplayName = "Get active jobs and verify")]
   public async Task GetActiveJobsAndVerifyEvents()
   {
@@ -83,18 +83,17 @@ public class GetActiveJobs(ITestOutputHelper outputHelper)
     var eventId = await _cronicleClient.Event.Create(newEvent, _cancellationToken);
     eventId.Should().NotBeEmpty();
 
-    var jobIds = await _cronicleClient.Event.RunEventById(eventId);
+    var jobIds = await _cronicleClient.Event.RunEventById(eventId, _cancellationToken);
 
     // Act
     var activeJobs = await _cronicleClient.Job.GetActiveJobs(_cancellationToken);
-    activeJobs.Any(a => a.Value.AbortReason != null).Should().BeFalse();
 
     // Assert
-    activeJobs.Should().NotBeNull();
+    activeJobs!.First(q => q.Value.EventTitle == newEvent.Title).Should().NotBeNull();
 
     // Cleanup
-    await _cronicleClient.Job.AbortJob(jobIds.First());
-    await Task.Delay(1000);
+    await _cronicleClient.Job.AbortJob(jobIds.First(), _cancellationToken);
+    await Task.Delay(2000, _cancellationToken);
     await _cronicleClient.Event.Delete(eventId, _cancellationToken);
   }
 }

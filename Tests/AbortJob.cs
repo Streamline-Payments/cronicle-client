@@ -5,6 +5,7 @@ using Xunit.Abstractions;
 
 namespace Tests;
 
+[Collection("About Job")]
 public class AbortJob(ITestOutputHelper outputHelper)
 {
   private readonly CancellationToken _cancellationToken = new CancellationTokenSource().Token;
@@ -33,16 +34,15 @@ public class AbortJob(ITestOutputHelper outputHelper)
     var newEventId = await _cronicleClient.Event.Create(newEvent, _cancellationToken);
     newEventId.Should().NotBeEmpty();
 
-    var jobId = await _cronicleClient.Event.RunEventById(newEventId);
+    var jobId = await _cronicleClient.Event.RunEventById(newEventId, _cancellationToken);
     jobId.Should().NotBeEmpty();
     jobId.Length.Should().Be(1);
 
-    // Act & Assert
-    await FluentActions.Invoking(() => _cronicleClient.Job.AbortJob(jobId.First(), _cancellationToken))
-      .Should().NotThrowAsync<Exception>();
+    // Act
+    await _cronicleClient.Job.AbortJob(jobId.First(), _cancellationToken);
 
     // Cleanup
-    await Task.Delay(1000);
+    await Task.Delay(2000, _cancellationToken);
     await _cronicleClient.Event.Delete(newEventId, _cancellationToken);
   }
 
@@ -70,18 +70,17 @@ public class AbortJob(ITestOutputHelper outputHelper)
     var newEventId = await _cronicleClient.Event.Create(newEvent, _cancellationToken);
     newEventId.Should().NotBeEmpty();
 
-    var jobId = await _cronicleClient.Event.RunEventById(newEventId);
+    var jobId = await _cronicleClient.Event.RunEventById(newEventId, _cancellationToken);
     jobId.Should().NotBeEmpty();
     jobId.Length.Should().Be(1);
 
     // Act
-    await FluentActions.Invoking(() => _cronicleClient.Job.AbortJob(jobId.First(), _cancellationToken))
-      .Should().NotThrowAsync<Exception>();
+    await _cronicleClient.Job.AbortJob(jobId.First(), _cancellationToken);
 
     // Assert
-    var abortedJob = await _cronicleClient.Job.GetJobStatus(jobId.First());
+    var abortedJob = await _cronicleClient.Job.GetJobStatus(jobId.First(), _cancellationToken);
     abortedJob.Should().NotBeNull();
-    abortedJob.AbortReason.Should().NotBeNull();
+    abortedJob!.AbortReason.Should().NotBeNull();
 
     // Cleanup
     await Task.Delay(1000);
@@ -119,7 +118,7 @@ public class AbortJob(ITestOutputHelper outputHelper)
       Title = "A title",
       Enabled = true,
       Category = "general",
-      Plugin = "plyyyhtht1w",
+      Plugin = "testplug",
       Target = "allgrp",
       Timing = new Timing
       {
@@ -128,16 +127,26 @@ public class AbortJob(ITestOutputHelper outputHelper)
         Days = [25],
         Months = [8],
         Years = [2024]
+      },
+      Parameters = new Dictionary<string, object>
+      {
+        { "duration", 2 } // 2 seconds
       }
     };
+    
+    // Create the event
     var eventId = await _cronicleClient.Event.Create(newEvent, _cancellationToken);
     eventId.Should().NotBeEmpty();
+    
+    // Run the event
     var jobIds = await _cronicleClient.Event.RunEventById(eventId, _cancellationToken);
     jobIds.Should().NotBeEmpty();
-    await Task.Delay(1000);
+    
+    // Wait for the job to complete
+    await Task.Delay(3000, _cancellationToken);
 
     var jobsCompleted = await _cronicleClient.Job.GetByEventId(eventId, 1, cancellationToken: _cancellationToken);
-    jobsCompleted.FirstOrDefault(j => j.Id == jobIds.First()).Should().NotBeNull();
+    jobsCompleted.First(j => j.Id == jobIds.First()).Should().NotBeNull();
 
     // Act & Assert
     await FluentActions.Invoking(() => _cronicleClient.Job.AbortJob(eventId, _cancellationToken))

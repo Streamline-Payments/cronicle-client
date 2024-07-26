@@ -5,6 +5,7 @@ using Xunit.Abstractions;
 
 namespace Tests;
 
+[Collection("Create Event")]
 public class CreateEvent(ITestOutputHelper outputHelper)
 {
   private readonly CancellationToken _cancellationToken = new CancellationTokenSource().Token;

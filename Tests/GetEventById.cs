@@ -5,13 +5,14 @@ using Xunit.Abstractions;
 
 namespace Tests;
 
+[Collection("Get Event By Id")]
 public class GetEventById(ITestOutputHelper outputHelper)
 {
   private readonly CancellationToken _cancellationToken = new CancellationTokenSource().Token;
   private readonly Client _cronicleClient = Common.InitCronicleClient(outputHelper);
 
   [Fact(DisplayName = "Get an event that exists in Cronicle")]
-  public async Task GetExistentEvent()
+  public async Task GetExistingEvent()
   {
     // Arrange
     var newEvent = new NewEvent

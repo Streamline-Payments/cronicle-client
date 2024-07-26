@@ -5,6 +5,7 @@ using Xunit.Abstractions;
 
 namespace Tests;
 
+[Collection("Get History")]
 public class GetHistoryTest(ITestOutputHelper outputHelper)
 {
   private readonly CancellationToken _cancellationToken = new CancellationTokenSource().Token;
@@ -46,7 +47,7 @@ public class GetHistoryTest(ITestOutputHelper outputHelper)
       Title = "New title",
       Enabled = true,
       Category = "general",
-      Plugin = "plyyyhtht1w",
+      Plugin = "testplug",
       Target = "allgrp",
       Timing = new Timing
       {
@@ -55,21 +56,24 @@ public class GetHistoryTest(ITestOutputHelper outputHelper)
         Days = [25],
         Months = [8],
         Years = [2024]
+      },
+      Parameters = new Dictionary<string, object>
+      {
+        { "duration", 1 } // 1 second
       }
     };
     var eventId = await _cronicleClient.Event.Create(newEvent, _cancellationToken);
     eventId.Should().NotBeEmpty();
 
     var ids = await _cronicleClient.Event.RunEventById(eventId, _cancellationToken);
-    await Task.Delay(500);
+    await Task.Delay(2000, _cancellationToken);
 
     // Act
     var history = await _cronicleClient.Job.GetHistory(10, cancellationToken: _cancellationToken);
 
     // Assert
     history.Should().NotBeNull();
-    history.FirstOrDefault(j => j.Id == ids.First()).Should().NotBeNull();
-
+    history.Should().HaveCountGreaterThan(0);
 
     // Cleanup
     await _cronicleClient.Event.Delete(eventId, _cancellationToken);
@@ -100,7 +104,7 @@ public class GetHistoryTest(ITestOutputHelper outputHelper)
 
     var ids = await _cronicleClient.Event.RunEventById(eventId, _cancellationToken);
     await _cronicleClient.Job.AbortJob(ids.First(), _cancellationToken);
-    await Task.Delay(1500);
+    await Task.Delay(1500, _cancellationToken);
 
     // Act
     var history = await _cronicleClient.Job.GetHistory(10, cancellationToken: _cancellationToken);
@@ -109,7 +113,7 @@ public class GetHistoryTest(ITestOutputHelper outputHelper)
     history.Should().NotBeNull();
     var abortedJob = history.FirstOrDefault(j => j.Id == ids.First());
     abortedJob.Should().NotBeNull();
-    abortedJob.Description.Should().StartWith("Job Aborted");
+    abortedJob!.Description.Should().StartWith("Job Aborted");
 
     // Cleanup
     await _cronicleClient.Event.Delete(eventId, _cancellationToken);

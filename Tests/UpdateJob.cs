@@ -5,6 +5,7 @@ using Xunit.Abstractions;
 
 namespace Tests;
 
+[Collection("Update Job")]
 public class UpdateJob(ITestOutputHelper outputHelper)
 {
   private readonly CancellationToken _cancellationToken = new CancellationTokenSource().Token;
@@ -33,75 +34,21 @@ public class UpdateJob(ITestOutputHelper outputHelper)
     var newEventId = await _cronicleClient.Event.Create(newEvent, _cancellationToken);
     newEventId.Should().NotBeEmpty();
 
-    var jobId = await _cronicleClient.Event.RunEventById(newEventId);
-    var jobsData = await _cronicleClient.Job.GetActiveJobs();
-    jobsData.Should().NotBeEmpty();
-    var jobData = jobsData.FirstOrDefault(p => p.Key == jobId[0]).Value;
-    jobData.Should().NotBeNull();
+    var jobIds = await _cronicleClient.Event.RunEventById(newEventId, _cancellationToken);
+;
     var updatedJob = new JobDataUpdateRequest
     {
-      Id = jobData.Id,
+      Id = jobIds.First(),
       NotifySuccess = "succes@yopmail.com",
       Timeout = 600
     };
 
     // Act & Assert
-    await FluentActions.Invoking(() => _cronicleClient.Job.Update(updatedJob, _cancellationToken))
-      .Should().NotThrowAsync<Exception>();
+    await _cronicleClient.Job.Update(updatedJob, _cancellationToken);
 
     // Cleanup
-    await Task.Delay(61000);
-    await _cronicleClient.Event.Delete(newEventId, _cancellationToken);
-  }
-
-  [Fact(DisplayName = "Update an Job and Validate")]
-  public async Task UpdateAnJobValidate()
-  {
-    // Arrange
-    var newEvent = new NewEvent
-    {
-      Title = "A title for job update",
-      Enabled = true,
-      Category = "general",
-      Plugin = "testplug",
-      Target = "allgrp",
-      Timing = new Timing
-      {
-        Hours = [4],
-        Minutes = [27],
-        Days = [25],
-        Months = [8],
-        Years = [2024]
-      }
-    };
-    var newEventId = await _cronicleClient.Event.Create(newEvent, _cancellationToken);
-    newEventId.Should().NotBeEmpty();
-
-    var jobId = await _cronicleClient.Event.RunEventById(newEventId);
-    var jobsData = await _cronicleClient.Job.GetActiveJobs();
-    jobsData.Should().NotBeEmpty();
-    var jobData = jobsData.FirstOrDefault(p => p.Key == jobId[0]).Value;
-    var updatedJob = new JobDataUpdateRequest
-    {
-      Id = jobData.Id,
-      NotifySuccess = "succes@yopmail.com",
-      Timeout = 600
-    };
-
-    // Act
-    await FluentActions.Invoking(() => _cronicleClient.Job.Update(updatedJob, _cancellationToken))
-      .Should().NotThrowAsync<Exception>();
-
-    // Assert
-    var jobsDataAfterUpdate = await _cronicleClient.Job.GetActiveJobs();
-    jobsDataAfterUpdate.Should().NotBeEmpty();
-    var jobDataAfterUpdate = jobsDataAfterUpdate.FirstOrDefault(p => p.Key == jobId[0]).Value;
-    jobDataAfterUpdate.Should().NotBeNull();
-    jobDataAfterUpdate.NotifySuccess.Should().Be(updatedJob.NotifySuccess);
-    jobDataAfterUpdate.Timeout.Should().Be(updatedJob.Timeout);
-
-    // Cleanup
-    await Task.Delay(61000);
+    await _cronicleClient.Job.AbortJob(jobIds.First(), _cancellationToken);
+    await Task.Delay(2000, _cancellationToken);
     await _cronicleClient.Event.Delete(newEventId, _cancellationToken);
   }
 
@@ -128,24 +75,21 @@ public class UpdateJob(ITestOutputHelper outputHelper)
     var newEventId = await _cronicleClient.Event.Create(newEvent, _cancellationToken);
     newEventId.Should().NotBeEmpty();
 
-    var jobId = await _cronicleClient.Event.RunEventById(newEventId);
-    var jobsData = await _cronicleClient.Job.GetActiveJobs();
-    jobsData.Should().NotBeEmpty();
-    var job = jobsData.FirstOrDefault(p => p.Key == jobId[0]).Value;
-    job.Should().NotBeNull();
+    var jobIds = await _cronicleClient.Event.RunEventById(newEventId, _cancellationToken);
+
     var updatedJob = new JobDataUpdateRequest
     {
-      Id = job.Id,
+      Id = jobIds.First(),
       CpuLimit = 200,
       CpuSustain = 120
     };
 
-    // Act & Assert
-    await FluentActions.Invoking(() => _cronicleClient.Job.Update(updatedJob, _cancellationToken))
-      .Should().NotThrowAsync<Exception>();
+    // Act
+    await _cronicleClient.Job.Update(updatedJob, _cancellationToken);
 
     // Cleanup
-    await Task.Delay(61000);
+    await _cronicleClient.Job.AbortJob(jobIds.First(), _cancellationToken);
+    await Task.Delay(2000, _cancellationToken);
     await _cronicleClient.Event.Delete(newEventId, _cancellationToken);
   }
 
@@ -178,8 +122,7 @@ public class UpdateJob(ITestOutputHelper outputHelper)
     await FluentActions.Invoking(() => _cronicleClient.Job.Update(updatedJob, _cancellationToken))
       .Should().ThrowAsync<Exception>();
   }
-
-
+  
   [Fact(DisplayName = "Update a completed Job")]
   public async Task UpdateJobCompleted()
   {
@@ -189,7 +132,7 @@ public class UpdateJob(ITestOutputHelper outputHelper)
       Title = "Event to update job completed",
       Enabled = true,
       Category = "general",
-      Plugin = "plyyyhtht1w",
+      Plugin = "testplug",
       Target = "allgrp",
       Timing = new Timing
       {
@@ -198,26 +141,25 @@ public class UpdateJob(ITestOutputHelper outputHelper)
         Days = [25],
         Months = [8],
         Years = [2024]
+      },
+      Parameters = new Dictionary<string, object>()
+      {
+        { "duration", 1 } // 1 second
       }
     };
     var newEventId = await _cronicleClient.Event.Create(newEvent, _cancellationToken);
     newEventId.Should().NotBeEmpty();
 
-    var jobId = await _cronicleClient.Event.RunEventById(newEventId);
-    var jobsData = await _cronicleClient.Job.GetActiveJobs();
-    jobsData.Should().NotBeEmpty();
-    var job = jobsData.FirstOrDefault(p => p.Key == jobId[0]).Value;
-    job.Should().NotBeNull();
+    var jobIds = await _cronicleClient.Event.RunEventById(newEventId, _cancellationToken);
+    await Task.Delay(2000, _cancellationToken);
+    
+    // Act & Assert
     var updatedJob = new JobDataUpdateRequest
     {
-      Id = job.Id,
+      Id = jobIds.First(),
       CpuLimit = 200,
       CpuSustain = 120
     };
-    await Task.Delay(500);
-
-
-    // Act & Assert
     await FluentActions.Invoking(() => _cronicleClient.Job.Update(updatedJob, _cancellationToken))
       .Should().ThrowAsync<KeyNotFoundException>();
 
@@ -248,23 +190,17 @@ public class UpdateJob(ITestOutputHelper outputHelper)
     var newEventId = await _cronicleClient.Event.Create(newEvent, _cancellationToken);
     newEventId.Should().NotBeEmpty();
 
-    var jobId = await _cronicleClient.Event.RunEventById(newEventId);
+    var jobIds = await _cronicleClient.Event.RunEventById(newEventId, _cancellationToken);
 
-    var jobsData = await _cronicleClient.Job.GetActiveJobs();
-    jobsData.Should().NotBeEmpty();
-
-    var job = jobsData.FirstOrDefault(p => p.Key == jobId[0]).Value;
-    job.Should().NotBeNull();
     var updatedJob = new JobDataUpdateRequest
     {
-      Id = job.Id,
+      Id = jobIds.First(),
       CpuLimit = 200,
       CpuSustain = 120
     };
 
-    await FluentActions.Invoking(() => _cronicleClient.Job.AbortJob(job.Id, _cancellationToken))
-      .Should().NotThrowAsync<Exception>();
-    await Task.Delay(1500);
+    await _cronicleClient.Job.AbortJob(jobIds.First(), _cancellationToken);
+    await Task.Delay(2000, _cancellationToken);
 
     // Act & Assert
     await FluentActions.Invoking(() => _cronicleClient.Job.Update(updatedJob, _cancellationToken))

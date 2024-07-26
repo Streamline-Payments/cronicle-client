@@ -1,214 +1,195 @@
 ﻿using CronicleClient;
 using CronicleClient.Models;
 using FluentAssertions;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit.Abstractions;
 
 namespace Tests;
-public class UpdateEvent
+
+public class UpdateEvent(ITestOutputHelper outputHelper)
 {
-    private readonly Client _cronicleClient;
-    private readonly CancellationToken _cancellationToken;
+  private readonly CancellationToken _cancellationToken = new CancellationTokenSource().Token;
+  private readonly Client _cronicleClient = Common.InitCronicleClient(outputHelper);
 
-    public UpdateEvent(ITestOutputHelper outputHelper)
+  [Fact(DisplayName = "Update an Event")]
+  public async Task UpdateAnEvent()
+  {
+    // Arrange
+    var newEvent = new NewEvent
     {
-        var serverUrl = "http://localhost:3012";
-        var apiKey = "240db114e152267349f17cf768808169";
-        var logger = outputHelper.ToLogger<CreateEvent>();
+      Title = "A title for update",
+      Enabled = true,
+      Category = "general",
+      Plugin = "testplug",
+      Target = "allgrp",
+      Timing = new Timing
+      {
+        Hours = [4],
+        Minutes = [27],
+        Days = [25],
+        Months = [8],
+        Years = [2024]
+      }
+    };
+    var newEventId = await _cronicleClient.Event.Create(newEvent, _cancellationToken);
+    newEventId.Should().NotBeEmpty();
 
-        _cronicleClient = new Client(baseUrl: serverUrl, apiToken: apiKey, logger: logger);
-        _cancellationToken = new CancellationTokenSource().Token;
-    }
+    var eventDetails = await _cronicleClient.Event.GetById(newEventId, _cancellationToken);
+    eventDetails.Should().NotBeNull();
 
-    [Fact(DisplayName = "Update an Event")]
-    public async Task UpdateAnEvent()
+    var eventData = eventDetails;
+
+    eventData.Title = "UpdatedTitle 2";
+    eventData.Category = "general";
+    eventData.Plugin = "testplug";
+    eventData.Target = "allgrp";
+    eventData.Timing = new Timing
     {
-        // Arrange
-        var newEvent = new NewEvent()
-        {
-            Title = "A title for update",
-            Enabled = true,
-            Category = "general",
-            Plugin = "testplug",
-            Target = "allgrp",
-            Timing = new Timing()
-            {
-                Hours = [4],
-                Minutes = [27],
-                Days = [25],
-                Months = [8],
-                Years = [2024]
-            }
-        };
-        var newEventId = await _cronicleClient.Event.Create(eventData: newEvent, cancellationToken: _cancellationToken);
-        newEventId.Should().NotBeEmpty();
+      Hours = [8],
+      Minutes = [32],
+      Days = [12],
+      Months = [2],
+      Years = [2024]
+    };
 
-        var eventDetails = await _cronicleClient.Event.GetById(eventId: newEventId, cancellationToken: _cancellationToken);
-        eventDetails.Should().NotBeNull();
+    // Act & Assert
+    await FluentActions.Invoking(() => _cronicleClient.Event.Update(eventData))
+      .Should().NotThrowAsync<Exception>();
 
-        EventData eventData = eventDetails;
+    // Cleanup
+    await _cronicleClient.Event.Delete(newEventId, _cancellationToken);
+  }
 
-        eventData.Title = "UpdatedTitle 2";
-        eventData.Category = "general";
-        eventData.Plugin = "testplug";
-        eventData.Target = "allgrp";
-        eventData.Timing = new Timing()
-        {
-            Hours = [8],
-            Minutes = [32],
-            Days = [12],
-            Months = [2],
-            Years = [2024]
-        };
-
-        // Act & Assert
-        await FluentActions.Invoking(() => _cronicleClient.Event.Update(eventData))
-            .Should().NotThrowAsync<Exception>();
-
-        // Cleanup
-        await _cronicleClient.Event.Delete(eventId: newEventId, cancellationToken: _cancellationToken);
-    }
-
-    [Fact(DisplayName = "Update more properties in Event")]
-    public async Task UpdateEventAndAbortRunningJobs()
+  [Fact(DisplayName = "Update more properties in Event")]
+  public async Task UpdateEventAndAbortRunningJobs()
+  {
+    // Arrange
+    var newEvent = new NewEvent
     {
-        // Arrange
-        var newEvent = new NewEvent()
-        {
-            Title = "Event to update and abort jobs",
-            Enabled = true,
-            Category = "general",
-            Plugin = "testplug",
-            Target = "allgrp",
-            Timing = new Timing()
-            {
-                Hours = [4],
-                Minutes = [27],
-                Days = [25],
-                Months = [8],
-                Years = [2024]
-            }
-        };
-        var newEventId = await _cronicleClient.Event.Create(eventData: newEvent, cancellationToken: _cancellationToken);
-        newEventId.Should().NotBeEmpty();
+      Title = "Event to update and abort jobs",
+      Enabled = true,
+      Category = "general",
+      Plugin = "testplug",
+      Target = "allgrp",
+      Timing = new Timing
+      {
+        Hours = [4],
+        Minutes = [27],
+        Days = [25],
+        Months = [8],
+        Years = [2024]
+      }
+    };
+    var newEventId = await _cronicleClient.Event.Create(newEvent, _cancellationToken);
+    newEventId.Should().NotBeEmpty();
 
-        var eventDetails = await _cronicleClient.Event.GetById(eventId: newEventId, cancellationToken: _cancellationToken);
-        eventDetails.Should().NotBeNull();
+    var eventDetails = await _cronicleClient.Event.GetById(newEventId, _cancellationToken);
+    eventDetails.Should().NotBeNull();
 
-        EventData updateData = eventDetails;
+    var updateData = eventDetails;
 
-        updateData.Enabled = false;
-        updateData.NotifySuccess= "Success@yopmail.com";
-        updateData.Timeout = 600;
+    updateData.Enabled = false;
+    updateData.NotifySuccess = "Success@yopmail.com";
+    updateData.Timeout = 600;
 
-        // Act
+    // Act
 
 
-        await FluentActions.Invoking(() => _cronicleClient.Event.Update(updateData))
-            .Should().NotThrowAsync<Exception>();
+    await FluentActions.Invoking(() => _cronicleClient.Event.Update(updateData))
+      .Should().NotThrowAsync<Exception>();
 
-        // Assert
-        var updatedEvent = await _cronicleClient.Event.GetById(eventId: newEventId, cancellationToken: _cancellationToken);
-        updatedEvent.Enabled.Should().BeFalse();
-        updatedEvent.NotifySuccess.Should().Be(updateData.NotifySuccess);
-        updatedEvent.Timeout.Should().Be(updateData.Timeout);
+    // Assert
+    var updatedEvent = await _cronicleClient.Event.GetById(newEventId, _cancellationToken);
+    updatedEvent.Enabled.Should().BeFalse();
+    updatedEvent.NotifySuccess.Should().Be(updateData.NotifySuccess);
+    updatedEvent.Timeout.Should().Be(updateData.Timeout);
 
-        // Cleanup
-        await _cronicleClient.Event.Delete(eventId: newEventId, cancellationToken: _cancellationToken);
-    }
+    // Cleanup
+    await _cronicleClient.Event.Delete(newEventId, _cancellationToken);
+  }
 
 
-    [Fact(DisplayName = "Update an Event with invalid timing")]
-    public async Task UpdateAnEventBadTiming()
+  [Fact(DisplayName = "Update an Event with invalid timing")]
+  public async Task UpdateAnEventBadTiming()
+  {
+    // Arrange
+    var newEvent = new NewEvent
     {
-        // Arrange
-        var newEvent = new NewEvent()
-        {
-            Title = "A title for update",
-            Enabled = true,
-            Category = "general",
-            Plugin = "testplug",
-            Target = "allgrp",
-            Timing = new Timing()
-            {
-                Hours = [4],
-                Minutes = [27],
-                Days = [25],
-                Months = [8],
-                Years = [2024]
-            }
-        };
-        var newEventId = await _cronicleClient.Event.Create(eventData: newEvent, cancellationToken: _cancellationToken);
-        newEventId.Should().NotBeEmpty();
+      Title = "A title for update",
+      Enabled = true,
+      Category = "general",
+      Plugin = "testplug",
+      Target = "allgrp",
+      Timing = new Timing
+      {
+        Hours = [4],
+        Minutes = [27],
+        Days = [25],
+        Months = [8],
+        Years = [2024]
+      }
+    };
+    var newEventId = await _cronicleClient.Event.Create(newEvent, _cancellationToken);
+    newEventId.Should().NotBeEmpty();
 
-        var eventDetails = await _cronicleClient.Event.GetById(eventId: newEventId, cancellationToken: _cancellationToken);
-        eventDetails.Should().NotBeNull();
+    var eventDetails = await _cronicleClient.Event.GetById(newEventId, _cancellationToken);
+    eventDetails.Should().NotBeNull();
 
-        EventData eventData = eventDetails;
+    var eventData = eventDetails;
 
-        eventData.Title = "UpdatedTitle 2";
-        eventData.Category = "general";
-        eventData.Plugin = "testplug";
-        eventData.Target = "allgrp";
-        eventData.Timing = new Timing()
-        {
-            Hours = [8],
-            Minutes = [32],
-            Days = [12],
-            Months = [2],
-            Years = [0]
-        };
-
-        // Act & Assert
-        await FluentActions.Invoking(() => _cronicleClient.Event.Update(eventData))
-            .Should().ThrowAsync<Exception>();
-
-
-        // Cleanup
-        await _cronicleClient.Event.Delete(eventId: newEventId, cancellationToken: _cancellationToken);
-    }
-
-    [Fact(DisplayName = "Update Event with invalid data")]
-    public async Task UpdateEventWithInvalidData()
+    eventData.Title = "UpdatedTitle 2";
+    eventData.Category = "general";
+    eventData.Plugin = "testplug";
+    eventData.Target = "allgrp";
+    eventData.Timing = new Timing
     {
-        // Arrange
-        var newEvent = new NewEvent()
-        {
-            Title = "Event to update with invalid data",
-            Enabled = true,
-            Category = "general",
-            Plugin = "testplug",
-            Target = "allgrp",
-            Timing = new Timing()
-            {
-                Hours = [4],
-                Minutes = [27],
-                Days = [25],
-                Months = [8],
-                Years = [2024]
-            }
-        };
-        var newEventId = await _cronicleClient.Event.Create(eventData: newEvent, cancellationToken: _cancellationToken);
-        newEventId.Should().NotBeEmpty();
+      Hours = [8],
+      Minutes = [32],
+      Days = [12],
+      Months = [2],
+      Years = [0]
+    };
 
-        var eventDetails = await _cronicleClient.Event.GetById(eventId: newEventId, cancellationToken: _cancellationToken);
-        eventDetails.Should().NotBeNull();
-
-        // Act
-        var updateData = new EventData() { Id = newEventId, Title = "" };
-        await FluentActions.Invoking(() => _cronicleClient.Event.Update(updateData))
-            .Should().ThrowAsync<Exception>();
-
-        // Cleanup
-        await _cronicleClient.Event.Delete(eventId: newEventId, cancellationToken: _cancellationToken);
-    }
+    // Act & Assert
+    await FluentActions.Invoking(() => _cronicleClient.Event.Update(eventData))
+      .Should().ThrowAsync<Exception>();
 
 
+    // Cleanup
+    await _cronicleClient.Event.Delete(newEventId, _cancellationToken);
+  }
 
+  [Fact(DisplayName = "Update Event with invalid data")]
+  public async Task UpdateEventWithInvalidData()
+  {
+    // Arrange
+    var newEvent = new NewEvent
+    {
+      Title = "Event to update with invalid data",
+      Enabled = true,
+      Category = "general",
+      Plugin = "testplug",
+      Target = "allgrp",
+      Timing = new Timing
+      {
+        Hours = [4],
+        Minutes = [27],
+        Days = [25],
+        Months = [8],
+        Years = [2024]
+      }
+    };
+    var newEventId = await _cronicleClient.Event.Create(newEvent, _cancellationToken);
+    newEventId.Should().NotBeEmpty();
+
+    var eventDetails = await _cronicleClient.Event.GetById(newEventId, _cancellationToken);
+    eventDetails.Should().NotBeNull();
+
+    // Act
+    var updateData = new EventData { Id = newEventId, Title = "" };
+    await FluentActions.Invoking(() => _cronicleClient.Event.Update(updateData))
+      .Should().ThrowAsync<Exception>();
+
+    // Cleanup
+    await _cronicleClient.Event.Delete(newEventId, _cancellationToken);
+  }
 }
-

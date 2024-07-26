@@ -1,75 +1,58 @@
 ﻿using CronicleClient;
 using FluentAssertions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit.Abstractions;
 
 namespace Tests;
 
-public class GetMasterState
+public class GetMasterState(ITestOutputHelper outputHelper)
 {
-    private readonly Client _cronicleClient;
-    private readonly CancellationToken _cancellationToken;
+  private readonly CancellationToken _cancellationToken = new CancellationTokenSource().Token;
+  private readonly Client _cronicleClient = Common.InitCronicleClient(outputHelper);
 
-    public GetMasterState(ITestOutputHelper outputHelper)
-    {
-        var serverUrl = "http://localhost:3012";
-        var apiKey = "240db114e152267349f17cf768808169";
-        var logger = outputHelper.ToLogger<CreateEvent>();
+  [Fact(DisplayName = "Get master state in Cronicle")]
+  public async Task GetMasterStatus()
+  {
+    // Arrange
 
-        _cronicleClient = new Client(baseUrl: serverUrl, apiToken: apiKey, logger: logger);
-        _cancellationToken = new CancellationTokenSource().Token;
-    }
+    // Act & Assert
+    await FluentActions.Invoking(() => _cronicleClient.Master.GetMasterState(_cancellationToken))
+      .Should().NotThrowAsync<Exception>();
+  }
 
-    [Fact(DisplayName = "Get master state in Cronicle")]
-    public async Task GetMasterStatus()
-    {
-        // Arrange
+  [Fact(DisplayName = "Get master state multiple times for consistency")]
+  public async Task GetMasterStateMultipleTimesForConsistency()
+  {
+    // Act
+    var masterState1 = await _cronicleClient.Master.GetMasterState(_cancellationToken);
+    var masterState2 = await _cronicleClient.Master.GetMasterState(_cancellationToken);
 
-        // Act & Assert
-        await FluentActions.Invoking(() => _cronicleClient.Master.GetMasterState(cancellationToken: _cancellationToken))
-            .Should().NotThrowAsync<Exception>();
-    }
+    // Assert
+    masterState1.Should().Be(masterState2);
+  }
 
-    [Fact(DisplayName = "Get master state multiple times for consistency")]
-    public async Task GetMasterStateMultipleTimesForConsistency()
-    {
-        // Act
-        var masterState1 = await _cronicleClient.Master.GetMasterState(cancellationToken: _cancellationToken);
-        var masterState2 = await _cronicleClient.Master.GetMasterState(cancellationToken: _cancellationToken);
+  [Fact(DisplayName = "Get master state and verify enabled")]
+  public async Task GetMasterStateAndVerifyEnabled()
+  {
+    // Arrange
+    await _cronicleClient.Master.UpdateMasterState(true, _cancellationToken);
 
-        // Assert
-        masterState1.Should().Be(masterState2);
-    }
+    // Act
+    var masterState = await _cronicleClient.Master.GetMasterState(_cancellationToken);
 
-    [Fact(DisplayName = "Get master state and verify enabled")]
-    public async Task GetMasterStateAndVerifyEnabled()
-    {
-        // Arrange
-        await _cronicleClient.Master.UpdateMasterState(true, cancellationToken: _cancellationToken);
+    // Assert
+    masterState.Should().Be(true);
+  }
 
-        // Act
-        var masterState = await _cronicleClient.Master.GetMasterState(cancellationToken: _cancellationToken);
+  [Fact(DisplayName = "Get master state and verify disabled")]
+  public async Task GetMasterStateAndVerifyDisabled()
+  {
+    // Arrange
+    await _cronicleClient.Master.UpdateMasterState(false, _cancellationToken);
 
-        // Assert
-        masterState.Should().Be(true);
-    }
+    // Act
+    var masterState = await _cronicleClient.Master.GetMasterState(_cancellationToken);
 
-    [Fact(DisplayName = "Get master state and verify disabled")]
-    public async Task GetMasterStateAndVerifyDisabled()
-    {
-        // Arrange
-        await _cronicleClient.Master.UpdateMasterState(false, cancellationToken: _cancellationToken);
-
-        // Act
-        var masterState = await _cronicleClient.Master.GetMasterState(cancellationToken: _cancellationToken);
-
-        // Assert
-        masterState.Should().Be(false);
-    }
-
-
+    // Assert
+    masterState.Should().Be(false);
+  }
 }

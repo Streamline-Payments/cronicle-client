@@ -5,6 +5,7 @@ using Xunit.Abstractions;
 
 namespace Tests;
 
+[Collection("Delete Event")]
 public class DeleteEvent(ITestOutputHelper outputHelper)
 {
   private readonly CancellationToken _cancellationToken = new CancellationTokenSource().Token;
@@ -33,9 +34,8 @@ public class DeleteEvent(ITestOutputHelper outputHelper)
     var eventId = await _cronicleClient.Event.Create(newEvent, _cancellationToken);
     eventId.Should().NotBeEmpty();
 
-    // Act & Assert
-    await FluentActions.Invoking(() => _cronicleClient.Event.Delete(eventId, _cancellationToken))
-      .Should().NotThrowAsync<Exception>();
+    // Act
+    await _cronicleClient.Event.Delete(eventId, _cancellationToken);
   }
 
   [Fact(DisplayName = "Delete an event that does not exist")]
@@ -73,8 +73,7 @@ public class DeleteEvent(ITestOutputHelper outputHelper)
     eventId.Should().NotBeEmpty();
 
     // Act
-    await FluentActions.Invoking(() => _cronicleClient.Event.Delete(eventId, _cancellationToken))
-      .Should().NotThrowAsync<Exception>();
+    await _cronicleClient.Event.Delete(eventId, _cancellationToken);
 
     // Assert
     await FluentActions.Invoking(() => _cronicleClient.Event.GetById(eventId, _cancellationToken))

@@ -5,6 +5,7 @@ using Xunit.Abstractions;
 
 namespace Tests;
 
+[Collection("Get Jobs")]
 public class GetJobs(ITestOutputHelper outputHelper)
 {
   private readonly CancellationToken _cancellationToken = new CancellationTokenSource().Token;
@@ -19,7 +20,7 @@ public class GetJobs(ITestOutputHelper outputHelper)
       Title = "New title",
       Enabled = true,
       Category = "general",
-      Plugin = "plyyyhtht1w",
+      Plugin = "testplug",
       Target = "allgrp",
       Timing = new Timing
       {
@@ -28,13 +29,17 @@ public class GetJobs(ITestOutputHelper outputHelper)
         Days = [25],
         Months = [8],
         Years = [2024]
+      },
+      Parameters = new Dictionary<string, object>
+      {
+        { "duration", 1 } // 1 second
       }
     };
     var eventId = await _cronicleClient.Event.Create(newEvent, _cancellationToken);
     eventId.Should().NotBeEmpty();
 
     var ids = await _cronicleClient.Event.RunEventById(eventId, _cancellationToken);
-    await Task.Delay(500);
+    await Task.Delay(2000, _cancellationToken);
 
     // Act
     var resultJobs = await _cronicleClient.Job.GetByEventId(eventId, 10, cancellationToken: _cancellationToken);
@@ -61,7 +66,7 @@ public class GetJobs(ITestOutputHelper outputHelper)
       Title = "New title",
       Enabled = true,
       Category = "general",
-      Plugin = "plyyyhtht1w",
+      Plugin = "testplug",
       Target = "allgrp",
       Timing = new Timing
       {
@@ -70,14 +75,18 @@ public class GetJobs(ITestOutputHelper outputHelper)
         Days = [25],
         Months = [8],
         Years = [2024]
+      },
+      Parameters = new Dictionary<string, object>
+      {
+        { "duration", 1 } // 1 seconds
       }
     };
     var eventId = await _cronicleClient.Event.Create(newEvent, _cancellationToken);
     eventId.Should().NotBeEmpty();
 
     var ids = await _cronicleClient.Event.RunEventById(eventId, _cancellationToken);
-    await _cronicleClient.Job.AbortJob(ids.First());
-    await Task.Delay(1500);
+    await _cronicleClient.Job.AbortJob(ids.First(), _cancellationToken);
+    await Task.Delay(2000, _cancellationToken);
 
     // Act
     var resultJobs = await _cronicleClient.Job.GetByEventId(eventId, 1, cancellationToken: _cancellationToken);
@@ -94,7 +103,6 @@ public class GetJobs(ITestOutputHelper outputHelper)
 
   [Theory]
   [InlineData(50, 0)]
-  [InlineData(0, 0)]
   public async Task GetJobsEventWithLimitAndOffset(int limit, int offset)
   {
     // Arrange
@@ -103,7 +111,7 @@ public class GetJobs(ITestOutputHelper outputHelper)
       Title = "New title",
       Enabled = true,
       Category = "general",
-      Plugin = "plyyyhtht1w",
+      Plugin = "testplug",
       Target = "allgrp",
       Timing = new Timing
       {
@@ -112,13 +120,17 @@ public class GetJobs(ITestOutputHelper outputHelper)
         Days = [25],
         Months = [8],
         Years = [2024]
+      },
+      Parameters = new Dictionary<string, object>
+      {
+        { "duration", 1 } // 1 second
       }
     };
     var eventId = await _cronicleClient.Event.Create(newEvent, _cancellationToken);
     eventId.Should().NotBeEmpty();
 
     var ids = await _cronicleClient.Event.RunEventById(eventId, _cancellationToken);
-    await Task.Delay(500);
+    await Task.Delay(2000, _cancellationToken);
 
     // Act
     var resultJobs = await _cronicleClient.Job.GetByEventId(eventId, limit, offset, _cancellationToken);

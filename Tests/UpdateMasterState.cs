@@ -17,8 +17,7 @@ public class UpdateMasterState(ITestOutputHelper outputHelper)
     // Arrange
 
     // Act
-    await FluentActions.Invoking(() => _cronicleClient.Master.UpdateMasterState(newStatus, _cancellationToken))
-      .Should().NotThrowAsync<Exception>();
+    await _cronicleClient.Master.UpdateMasterState(newStatus, _cancellationToken);
 
     // Assert
     var masterStatus = await _cronicleClient.Master.GetMasterState(_cancellationToken);
@@ -33,15 +32,13 @@ public class UpdateMasterState(ITestOutputHelper outputHelper)
     var newStatus = !initialStatus;
 
     // Act
-    await FluentActions.Invoking(() => _cronicleClient.Master.UpdateMasterState(newStatus, _cancellationToken))
-      .Should().NotThrowAsync<Exception>();
+    await  _cronicleClient.Master.UpdateMasterState(newStatus, _cancellationToken);
 
     // Assert
     var updatedStatus = await _cronicleClient.Master.GetMasterState(_cancellationToken);
     updatedStatus.Should().Be(newStatus);
 
     // Cleanup 
-    await FluentActions.Invoking(() => _cronicleClient.Master.UpdateMasterState(initialStatus, _cancellationToken))
-      .Should().NotThrowAsync<Exception>();
+    await _cronicleClient.Master.UpdateMasterState(initialStatus, _cancellationToken);
   }
 }

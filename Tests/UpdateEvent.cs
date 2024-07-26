@@ -51,9 +51,8 @@ public class UpdateEvent(ITestOutputHelper outputHelper)
       Years = [2024]
     };
 
-    // Act & Assert
-    await FluentActions.Invoking(() => _cronicleClient.Event.Update(eventData))
-      .Should().NotThrowAsync<Exception>();
+    // Act
+    await _cronicleClient.Event.Update(eventData);
 
     // Cleanup
     await _cronicleClient.Event.Delete(newEventId, _cancellationToken);
@@ -92,10 +91,7 @@ public class UpdateEvent(ITestOutputHelper outputHelper)
     updateData.Timeout = 600;
 
     // Act
-
-
-    await FluentActions.Invoking(() => _cronicleClient.Event.Update(updateData))
-      .Should().NotThrowAsync<Exception>();
+    await _cronicleClient.Event.Update(updateData);
 
     // Assert
     var updatedEvent = await _cronicleClient.Event.GetById(newEventId, _cancellationToken);

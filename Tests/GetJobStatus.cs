@@ -5,6 +5,7 @@ using Xunit.Abstractions;
 
 namespace Tests;
 
+[Collection("Get Job Status")]
 public class GetJobStatus(ITestOutputHelper outputHelper)
 {
   private readonly CancellationToken _cancellationToken = new CancellationTokenSource().Token;
@@ -105,7 +106,7 @@ public class GetJobStatus(ITestOutputHelper outputHelper)
       Title = "Completed job event",
       Enabled = true,
       Category = "general",
-      Plugin = "plyyyhtht1w",
+      Plugin = "testplug",
       Target = "allgrp",
       Timing = new Timing
       {
@@ -114,6 +115,10 @@ public class GetJobStatus(ITestOutputHelper outputHelper)
         Days = [5],
         Months = [1],
         Years = [2024]
+      },
+      Parameters = new Dictionary<string, object>
+      {
+        { "duration", 1 } // 1 second
       }
     };
 
@@ -121,15 +126,15 @@ public class GetJobStatus(ITestOutputHelper outputHelper)
     eventId.Should().NotBeEmpty();
 
     var ids = await _cronicleClient.Event.RunEventById(eventId, _cancellationToken);
-    await Task.Delay(1500);
+    await Task.Delay(2000, _cancellationToken);
 
     // Act
     var jobData = await _cronicleClient.Job.GetJobStatus(ids.First(), _cancellationToken);
 
     // Assert
     jobData.Should().NotBeNull();
-    jobData.AbortReason.Should().BeNull();
-    jobData.Description.Should().NotStartWith("Job Aborted");
+    jobData!.AbortReason.Should().BeNull();
+    jobData!.Description.Should().NotContain("Job Aborted");
 
     // Cleanup
     await _cronicleClient.Event.Delete(eventId, _cancellationToken);

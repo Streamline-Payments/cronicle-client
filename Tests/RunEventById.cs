@@ -87,7 +87,7 @@ public class RunEventById(ITestOutputHelper outputHelper)
     // Arrange
     var nonExistentEventId = "non-existent-id";
 
-    // Act & Assert
+    // Act
     await FluentActions.Invoking(() => _cronicleClient.Event.RunEventById(nonExistentEventId, _cancellationToken))
       .Should().ThrowAsync<Exception>();
   }

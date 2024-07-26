@@ -127,7 +127,7 @@ public record NewEvent
   /// </summary>
   [JsonPropertyName("params")] 
   [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] 
-  public Dictionary<string, string>? Parameters { get; set; }
+  public IDictionary<string, object>? Parameters { get; set; }
   /// <summary>
   /// The ID of the Plugin which will run jobs for the event.
   /// </summary>

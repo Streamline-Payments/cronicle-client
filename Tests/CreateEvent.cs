@@ -1,4 +1,4 @@
-﻿using CronicleClient;
+using CronicleClient;
 using CronicleClient.Models;
 using FluentAssertions;
 using FluentAssertions.Equivalency;
@@ -57,7 +57,7 @@ public class CreateEvent
             Title = "A title",
             Enabled = true,
             Category = "general",
-            Plugin = "testplug",
+            Plugin = "shellplug",
             Target = "allgrp",
             Timing = new Timing()
             {
@@ -66,6 +66,16 @@ public class CreateEvent
                 Days = [5],
                 Months = [1],
                 Years = [2024]
+            },
+            Parameters = new Dictionary<string, object>()
+            {
+                { "script", """
+                            echo 'Hello, World!'
+
+                            echo 'This is a test of the Cronicle Shell Plugin'
+                            """ },
+                { "annotate", true },
+                { "json", true }
             }
         };
 

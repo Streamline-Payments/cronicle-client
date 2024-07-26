@@ -31,10 +31,10 @@ public class GetSchedule
         // Arrange
 
         // Act
-        var eventDetails = await _cronicleClient.Event.GetSchedule(cancellationToken: _cancellationToken);
+        var (events, _) = await _cronicleClient.Event.GetSchedule(cancellationToken: _cancellationToken);
 
         // Assert
-        eventDetails.Should().NotBeNull();
+        events.Should().NotBeNull();
     }
 
     [Fact(DisplayName = "Get an schedule with limit in Cronicle")]
@@ -44,11 +44,11 @@ public class GetSchedule
         int limit = 10;
 
         // Act
-        var eventDetails = await _cronicleClient.Event.GetSchedule(limit, 0, cancellationToken: _cancellationToken);
+        var (events, _) = await _cronicleClient.Event.GetSchedule(limit, 0, cancellationToken: _cancellationToken);
 
         // Assert
-        eventDetails.Should().NotBeNull();
-        eventDetails.Count().Should().BeLessThanOrEqualTo(limit);
+        events.Should().NotBeNull();
+        events.Count().Should().BeLessThanOrEqualTo(limit);
     }
 
     [Fact(DisplayName = "Get an schedule with offset in Cronicle")]
@@ -58,10 +58,10 @@ public class GetSchedule
         int offset = 3;
 
         // Act
-        var eventDetails = await _cronicleClient.Event.GetSchedule(50, offset, cancellationToken: _cancellationToken);
+        var (events, _) = await _cronicleClient.Event.GetSchedule(50, offset, cancellationToken: _cancellationToken);
 
         // Assert
-        eventDetails.Should().NotBeNull();
+        events.Should().NotBeNull();
     }
 
     [Fact(DisplayName = "Get an schedule with new event in Cronicle")]
@@ -88,11 +88,11 @@ public class GetSchedule
         eventId.Should().NotBeEmpty();
 
         // Act
-        var eventDetails = await _cronicleClient.Event.GetSchedule(cancellationToken: _cancellationToken);
+        var (events, _) = await _cronicleClient.Event.GetSchedule(cancellationToken: _cancellationToken);
 
         // Assert
-        eventDetails.Should().NotBeNull();
-        eventDetails.FirstOrDefault(e => e.Id == eventId).Should().NotBeNull();
+        events.Should().NotBeNull();
+        events.FirstOrDefault(e => e.Id == eventId).Should().NotBeNull();
 
         // Cleanup
         await _cronicleClient.Event.Delete(eventId: eventId, cancellationToken: _cancellationToken);
@@ -129,12 +129,12 @@ public class GetSchedule
         }
 
         // Act
-        var eventDetails = await _cronicleClient.Event.GetSchedule(eventsNumber, 0, cancellationToken: _cancellationToken);
+        var (events, _) = await _cronicleClient.Event.GetSchedule(eventsNumber, 0, cancellationToken: _cancellationToken);
 
         // Assert
-        eventDetails.Should().NotBeNull();
-        foreach (var id in newIds) { 
-            eventDetails.FirstOrDefault(e => e.Id == id).Should().NotBeNull();
+        events.Should().NotBeNull();
+        foreach (var id in newIds) {
+            events.FirstOrDefault(e => e.Id == id).Should().NotBeNull();
             // Cleanup
             await _cronicleClient.Event.Delete(eventId: id, cancellationToken: _cancellationToken);
         }

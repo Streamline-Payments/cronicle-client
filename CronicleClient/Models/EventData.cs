@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
+using static CronicleClient.Common;
 
 namespace CronicleClient.Models;
 
@@ -150,14 +151,14 @@ public record EventData
     /// An object containing the Plugin's custom parameters, filled out with values from the Event Editor.
     /// </summary>
     // TODO: convert this to be an object
-    //[JsonPropertyName("params")]
-    //[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    //public Dictionary<string, object>? Parameters { get; set; }
+    [JsonPropertyName("params")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IDictionary<string, object>? Parameters { get; set; }
 
-  /// <summary>
-  /// The ID of the Plugin which will run jobs for the event.
-  /// </summary>
-  [JsonPropertyName("plugin")] 
+    /// <summary>
+    /// The ID of the Plugin which will run jobs for the event.
+    /// </summary>
+    [JsonPropertyName("plugin")] 
   public string Plugin { get; set; } = null!;
   /// <summary>
   /// The number of retries to allow before reporting an error.

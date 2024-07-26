@@ -36,7 +36,13 @@ internal static class Common
   {
     public override bool Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-      return reader.GetInt32() == 1;
+            return reader.TokenType switch
+            {
+                JsonTokenType.Number => reader.GetInt32() == 1,
+                JsonTokenType.False => false,
+                JsonTokenType.True => true,
+                _ => throw new JsonException()
+            };
     }
 
     public override void Write(Utf8JsonWriter writer, bool value, JsonSerializerOptions options)

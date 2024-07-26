@@ -34,21 +34,103 @@ public class CronicleEvent(HttpClient httpClient, ILogger logger)
     if(eventData.Target == default) throw new ArgumentNullException(nameof(eventData.Target));
   }
   
-  public async Task<IEnumerable<EventData>> GetSchedule(int limit = 50, int offset = 0, CancellationToken cancellationToken = default)
+  public async Task<(IEnumerable<EventData>, int)> GetSchedule(int limit = 50, int offset = 0, CancellationToken cancellationToken = default)
   {
     logger.LogDebug($"Fetching all events Cronicle");
     var resp = await httpClient.GetFromJsonAsync<ListEventsResponse>($"get_schedule/v1?offset={offset}&limit={limit}", cancellationToken);
     resp.EnsureSuccessStatusCode();
-    return resp?.EventDataCollection ?? new List<EventData>().AsEnumerable();
-  }
-  
-  /// <summary>
-  /// This fetches details about a single event, given its ID.
-  /// </summary>
-  /// <param name="eventId"></param>
-  /// <param name="cancellationToken"></param>
-  /// <returns></returns>
-  public async Task<EventData?> GetById(string eventId, CancellationToken cancellationToken = default)
+    return (resp?.EventDataCollection ?? new List<EventData>().AsEnumerable(), resp?.List.Length ?? 0);
+    }
+    /// <summary>
+    /// This fetches all schedule and search and event by a filter asynchronously.
+    /// </summary>
+    /// <param name="filter"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public async Task<IEnumerable<EventData>> SearchScheduleAsync(string titleFilter, Timing? dateFilter, CancellationToken cancellationToken = default)
+    {
+        int limit = 50;
+        int offset = 0;
+        titleFilter = titleFilter.ToLower();
+
+        List<EventData> itemsFound = new List<EventData>();
+
+        logger.LogDebug("Fetching search of events in Cronicle");
+
+        var initialResponse = await httpClient.GetFromJsonAsync<ListEventsResponse>($"get_schedule/v1?offset={offset}&limit={limit}", cancellationToken);
+        int totalEvents = initialResponse.List.Length;
+
+        int numberOfRequests = 0;
+        if (totalEvents % limit == 0)
+        {
+            numberOfRequests = totalEvents / limit;
+        }
+        else { 
+            numberOfRequests = (totalEvents + limit - 1) / limit;
+        }
+
+        List<Task<List<EventData>>> tasks = new List<Task<List<EventData>>>();
+
+        for (int i = 0; i < numberOfRequests; i++)
+        {
+            int currentOffset = i * limit;
+            tasks.Add(FetchSchedule(currentOffset, limit, titleFilter, cancellationToken));
+        }
+
+        var results = await Task.WhenAll(tasks);
+        itemsFound.AddRange(results.SelectMany(list => list).ToList());
+
+        return itemsFound.AsEnumerable();
+    }
+    async Task<List<EventData>> FetchSchedule(int offset, int limit, string filter, CancellationToken cancellationToken)
+    {        
+        var (events, _) = await GetSchedule(limit, offset, cancellationToken);
+       return events.Where(i => i.Title.ToLower().Contains(filter)).ToList();
+    }
+
+    public async Task<IEnumerable<EventData>> SearchSchedule(SearchScheduleRequest searchRequest, CancellationToken cancellationToken = default)
+    {
+        int limit = 50;
+        int offset = 0;
+        int length = 51;
+        List<EventData> itemsFound = new List<EventData>();
+
+        logger.LogDebug("Fetching search of events in Cronicle");
+
+        var (_, totalEventsCount) = await GetSchedule(1, 0, cancellationToken);
+        length = totalEventsCount;
+
+        for (offset = 0; offset < length; offset += 50)
+        {
+            var (events, _) = await GetSchedule(limit, offset, cancellationToken);
+            events = FilterSchedule(events.ToList(), searchRequest);
+            itemsFound.AddRange(events);
+        }
+
+        return itemsFound.AsEnumerable();
+    }
+
+    public List<EventData> FilterSchedule(List<EventData> events, SearchScheduleRequest searchRequest)
+    {
+        if (events.Count() > 0 && searchRequest.title is not null)
+        {
+            events = events.Where(i => i.Title.Contains(searchRequest?.title)).ToList();
+        }
+        if (events.Count() > 0 && searchRequest.parameterKeyName is not null)
+        {
+            events = events.Where(i => i.Parameters.ContainsKey(searchRequest?.parameterKeyName)).ToList();
+        }
+        return events;
+    }
+
+
+    /// <summary>
+    /// This fetches details about a single event, given its ID.
+    /// </summary>
+    /// <param name="eventId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public async Task<EventData?> GetById(string eventId, CancellationToken cancellationToken = default)
   {
     logger.LogDebug($"Fetching event '{eventId}' from Cronicle");
     var resp = await httpClient.GetFromJsonAsync<GetEventResponse>($"get_event/v1?id={eventId}", cancellationToken);

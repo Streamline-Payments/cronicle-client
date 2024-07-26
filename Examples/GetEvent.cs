@@ -10,6 +10,6 @@ public class GetEvent(string croniclePrimaryServerUrl, string cronicleApiKey, IL
 
   public Task<EventData?> Get(string eventId, CancellationToken cancellationToken)
   {
-    return _cronicleClient.Event.GetById(eventId: eventId, cancellationToken: cancellationToken);
+    return _cronicleClient.Event.GetById(eventId, cancellationToken);
   }
 }

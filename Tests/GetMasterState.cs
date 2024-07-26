@@ -4,6 +4,7 @@ using Xunit.Abstractions;
 
 namespace Tests;
 
+[Collection("Get Master State")]
 public class GetMasterState(ITestOutputHelper outputHelper)
 {
   private readonly CancellationToken _cancellationToken = new CancellationTokenSource().Token;
@@ -23,6 +24,7 @@ public class GetMasterState(ITestOutputHelper outputHelper)
   {
     // Act
     var masterState1 = await _cronicleClient.Master.GetMasterState(_cancellationToken);
+    await Task.Delay(1000, _cancellationToken);
     var masterState2 = await _cronicleClient.Master.GetMasterState(_cancellationToken);
 
     // Assert

@@ -5,12 +5,12 @@ using Xunit.Abstractions;
 
 namespace Tests;
 
+[Collection("Run Event By Title")]
 public class RunEventByTitle(ITestOutputHelper outputHelper)
 {
   private readonly CancellationToken _cancellationToken = new CancellationTokenSource().Token;
   private readonly Client _cronicleClient = Common.InitCronicleClient(outputHelper);
-
-
+  
   [Fact(DisplayName = "Run an event by its title")]
   public async Task RunEvent()
   {
@@ -20,7 +20,7 @@ public class RunEventByTitle(ITestOutputHelper outputHelper)
       Title = "A title",
       Enabled = true,
       Category = "general",
-      Plugin = "plyyyhtht1w",
+      Plugin = "testplug",
       Target = "allgrp",
       Timing = new Timing
       {
@@ -29,6 +29,10 @@ public class RunEventByTitle(ITestOutputHelper outputHelper)
         Days = [25],
         Months = [8],
         Years = [2024]
+      },
+      Parameters = new Dictionary<string, object>
+      {
+        { "duration", 1 } // 1 second
       }
     };
     var eventId = await _cronicleClient.Event.Create(newEvent, _cancellationToken);
@@ -42,7 +46,7 @@ public class RunEventByTitle(ITestOutputHelper outputHelper)
     jobIds.Should().NotBeEmpty();
 
     // Cleanup
-    await Task.Delay(500);
+    await Task.Delay(2000, _cancellationToken);
     await _cronicleClient.Event.Delete(eventId, _cancellationToken);
   }
 
@@ -55,7 +59,7 @@ public class RunEventByTitle(ITestOutputHelper outputHelper)
       Title = "Run event validate",
       Enabled = true,
       Category = "general",
-      Plugin = "plyyyhtht1w",
+      Plugin = "testplug",
       Target = "allgrp",
       Timing = new Timing
       {
@@ -64,6 +68,10 @@ public class RunEventByTitle(ITestOutputHelper outputHelper)
         Days = [25],
         Months = [8],
         Years = [2024]
+      },
+      Parameters = new Dictionary<string, object>
+      {
+        { "duration", 1 } // 1 second
       }
     };
     var eventId = await _cronicleClient.Event.Create(newEvent, _cancellationToken);
@@ -74,13 +82,12 @@ public class RunEventByTitle(ITestOutputHelper outputHelper)
 
     // Assert
     jobIds.Should().NotBeEmpty();
-    await Task.Delay(500);
+    await Task.Delay(2000, _cancellationToken);
     var jobs = await _cronicleClient.Job.GetByEventId(eventId, 10, cancellationToken: _cancellationToken);
-
-    jobs.FirstOrDefault(x => x.Id == jobIds.First()).Should().NotBeNull();
+    jobs.Should().HaveCount(1);
+    jobs!.First().Code.Should().Be(0);
 
     // Cleanup
-    await Task.Delay(500);
     await _cronicleClient.Event.Delete(eventId, _cancellationToken);
   }
 
@@ -104,7 +111,7 @@ public class RunEventByTitle(ITestOutputHelper outputHelper)
       Title = "Repeatable Event",
       Enabled = true,
       Category = "general",
-      Plugin = "plyyyhtht1w",
+      Plugin = "testplug",
       Target = "allgrp",
       Timing = new Timing
       {
@@ -113,6 +120,10 @@ public class RunEventByTitle(ITestOutputHelper outputHelper)
         Days = [25],
         Months = [8],
         Years = [2024]
+      },
+      Parameters = new Dictionary<string, object>
+      {
+        { "duration", 1 } // 1 second
       }
     };
     var eventId = await _cronicleClient.Event.Create(newEvent, _cancellationToken);
@@ -127,7 +138,7 @@ public class RunEventByTitle(ITestOutputHelper outputHelper)
     jobIds2.Should().NotBeEmpty();
 
     // Cleanup
-    await Task.Delay(500);
+    await Task.Delay(2000, _cancellationToken);
     await _cronicleClient.Event.Delete(eventId, _cancellationToken);
   }
 }

@@ -103,7 +103,7 @@ public class DeleteEvent(ITestOutputHelper outputHelper)
     var eventId = await _cronicleClient.Event.Create(newEvent, _cancellationToken);
     eventId.Should().NotBeEmpty();
 
-    var jobId = await _cronicleClient.Event.RunEventById(eventId);
+    var jobId = await _cronicleClient.Event.RunEventById(eventId, _cancellationToken);
 
     // Act & Assert
     await FluentActions.Invoking(() => _cronicleClient.Event.Delete(eventId, _cancellationToken))

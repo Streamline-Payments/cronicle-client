@@ -1,156 +1,137 @@
 ﻿using CronicleClient;
 using CronicleClient.Models;
 using FluentAssertions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit.Abstractions;
 
 namespace Tests;
 
-public class GetJobStatus
+public class GetJobStatus(ITestOutputHelper outputHelper)
 {
-    private readonly Client _cronicleClient;
-    private readonly CancellationToken _cancellationToken;
+  private readonly CancellationToken _cancellationToken = new CancellationTokenSource().Token;
+  private readonly Client _cronicleClient = Common.InitCronicleClient(outputHelper);
 
-    public GetJobStatus(ITestOutputHelper outputHelper)
+  [Fact(DisplayName = "Get job status")]
+  public async Task GetJobsStatus()
+  {
+    // Arrange
+    var newEvent = new NewEvent
     {
-        var serverUrl = "http://localhost:3012";
-        var apiKey = "240db114e152267349f17cf768808169";
-        var logger = outputHelper.ToLogger<CreateEvent>();
+      Title = "A job event",
+      Enabled = true,
+      Category = "general",
+      Plugin = "testplug",
+      Target = "allgrp",
+      Timing = new Timing
+      {
+        Hours = [4],
+        Minutes = [27],
+        Days = [5],
+        Months = [1],
+        Years = [2024]
+      }
+    };
 
-        _cronicleClient = new Client(baseUrl: serverUrl, apiToken: apiKey, logger: logger);
-        _cancellationToken = new CancellationTokenSource().Token;
-    }
+    var eventId = await _cronicleClient.Event.Create(newEvent);
+    eventId.Should().NotBeEmpty();
 
-    [Fact(DisplayName = "Get job status")]
-    public async Task GetJobsStatus()
+    var ids = await _cronicleClient.Event.RunEventById(eventId, _cancellationToken);
+
+    // Act
+    var jobData = await _cronicleClient.Job.GetJobStatus(ids.First(), _cancellationToken);
+    jobData.Should().NotBeNull();
+
+    // Cleanup
+    await _cronicleClient.Job.AbortJob(ids.First(), _cancellationToken);
+    await Task.Delay(1500);
+    await _cronicleClient.Event.Delete(eventId, _cancellationToken);
+  }
+
+  [Fact(DisplayName = "Get job status for non-existent job")]
+  public async Task GetJobStatusForNonExistentJob()
+  {
+    // Arrange
+    var nonExistentJobId = "nonExistentJobId";
+
+    // Act & Assert
+    await FluentActions.Invoking(() => _cronicleClient.Job.GetJobStatus(nonExistentJobId, _cancellationToken))
+      .Should().ThrowAsync<Exception>();
+  }
+
+  [Fact(DisplayName = "Get job status for aborted job")]
+  public async Task GetJobStatusForAbortedJob()
+  {
+    // Arrange
+    var newEvent = new NewEvent
     {
-        // Arrange
-        var newEvent = new NewEvent()
-        {
-            Title = "A job event",
-            Enabled = true,
-            Category = "general",
-            Plugin = "testplug",
-            Target = "allgrp",
-            Timing = new Timing()
-            {
-                Hours = [4],
-                Minutes = [27],
-                Days = [5],
-                Months = [1],
-                Years = [2024]
-            }
-        };
+      Title = "Abort job event",
+      Enabled = true,
+      Category = "general",
+      Plugin = "testplug",
+      Target = "allgrp",
+      Timing = new Timing
+      {
+        Hours = [4],
+        Minutes = [27],
+        Days = [5],
+        Months = [1],
+        Years = [2024]
+      }
+    };
 
-        var eventId = await _cronicleClient.Event.Create(newEvent);
-        eventId.Should().NotBeEmpty();
+    var eventId = await _cronicleClient.Event.Create(newEvent, _cancellationToken);
+    eventId.Should().NotBeEmpty();
 
-        var ids = await _cronicleClient.Event.RunEventById(eventId: eventId, cancellationToken: _cancellationToken);
+    var ids = await _cronicleClient.Event.RunEventById(eventId, _cancellationToken);
+    await _cronicleClient.Job.AbortJob(ids.First(), _cancellationToken);
+    await Task.Delay(1500);
 
-        // Act
-        var jobData = await _cronicleClient.Job.GetJobStatus(ids.First(), cancellationToken: _cancellationToken);
-        jobData.Should().NotBeNull();
+    // Act
+    var jobData = await _cronicleClient.Job.GetJobStatus(ids.First(), _cancellationToken);
 
-        // Cleanup
-        await _cronicleClient.Job.AbortJob(ids.First(), cancellationToken: _cancellationToken);
-        await Task.Delay(1500);
-        await _cronicleClient.Event.Delete(eventId: eventId, cancellationToken: _cancellationToken);
-    }
+    // Assert
+    jobData.Should().NotBeNull();
+    jobData.AbortReason.Should().NotBeNull();
 
-    [Fact(DisplayName = "Get job status for non-existent job")]
-    public async Task GetJobStatusForNonExistentJob()
+    // Cleanup
+    await _cronicleClient.Event.Delete(eventId, _cancellationToken);
+  }
+
+  [Fact(DisplayName = "Get job status for completed job")]
+  public async Task GetJobStatusForCompletedJob()
+  {
+    // Arrange
+    var newEvent = new NewEvent
     {
-        // Arrange
-        string nonExistentJobId = "nonExistentJobId";
+      Title = "Completed job event",
+      Enabled = true,
+      Category = "general",
+      Plugin = "plyyyhtht1w",
+      Target = "allgrp",
+      Timing = new Timing
+      {
+        Hours = [4],
+        Minutes = [27],
+        Days = [5],
+        Months = [1],
+        Years = [2024]
+      }
+    };
 
-        // Act & Assert
-        await FluentActions.Invoking(() => _cronicleClient.Job.GetJobStatus(nonExistentJobId, cancellationToken: _cancellationToken))
-            .Should().ThrowAsync<Exception>();
-    }
+    var eventId = await _cronicleClient.Event.Create(newEvent, _cancellationToken);
+    eventId.Should().NotBeEmpty();
 
-    [Fact(DisplayName = "Get job status for aborted job")]
-    public async Task GetJobStatusForAbortedJob()
-    {
-        // Arrange
-        var newEvent = new NewEvent()
-        {
-            Title = "Abort job event",
-            Enabled = true,
-            Category = "general",
-            Plugin = "testplug",
-            Target = "allgrp",
-            Timing = new Timing()
-            {
-                Hours = [4],
-                Minutes = [27],
-                Days = [5],
-                Months = [1],
-                Years = [2024]
-            }
-        };
+    var ids = await _cronicleClient.Event.RunEventById(eventId, _cancellationToken);
+    await Task.Delay(1500);
 
-        var eventId = await _cronicleClient.Event.Create(newEvent, cancellationToken: _cancellationToken);
-        eventId.Should().NotBeEmpty();
+    // Act
+    var jobData = await _cronicleClient.Job.GetJobStatus(ids.First(), _cancellationToken);
 
-        var ids = await _cronicleClient.Event.RunEventById(eventId: eventId, cancellationToken: _cancellationToken);
-        await _cronicleClient.Job.AbortJob(ids.First(), cancellationToken: _cancellationToken);
-        await Task.Delay(1500);
+    // Assert
+    jobData.Should().NotBeNull();
+    jobData.AbortReason.Should().BeNull();
+    jobData.Description.Should().NotStartWith("Job Aborted");
 
-        // Act
-        var jobData = await _cronicleClient.Job.GetJobStatus(ids.First(), cancellationToken: _cancellationToken);
-
-        // Assert
-        jobData.Should().NotBeNull();
-        jobData.AbortReason.Should().NotBeNull();
-
-        // Cleanup
-        await _cronicleClient.Event.Delete(eventId: eventId, cancellationToken: _cancellationToken);
-    }
-
-    [Fact(DisplayName = "Get job status for completed job")]
-    public async Task GetJobStatusForCompletedJob()
-    {
-        // Arrange
-        var newEvent = new NewEvent()
-        {
-            Title = "Completed job event",
-            Enabled = true,
-            Category = "general",
-            Plugin = "plyyyhtht1w",
-            Target = "allgrp",
-            Timing = new Timing()
-            {
-                Hours = [4],
-                Minutes = [27],
-                Days = [5],
-                Months = [1],
-                Years = [2024]
-            }
-        };
-
-        var eventId = await _cronicleClient.Event.Create(newEvent, cancellationToken: _cancellationToken);
-        eventId.Should().NotBeEmpty();
-
-        var ids = await _cronicleClient.Event.RunEventById(eventId: eventId, cancellationToken: _cancellationToken);
-        await Task.Delay(1500); 
-
-        // Act
-        var jobData = await _cronicleClient.Job.GetJobStatus(ids.First(), cancellationToken: _cancellationToken);
-
-        // Assert
-        jobData.Should().NotBeNull();
-        jobData.AbortReason.Should().BeNull();
-        jobData.Description.Should().NotStartWith("Job Aborted");
-
-        // Cleanup
-        await _cronicleClient.Event.Delete(eventId: eventId, cancellationToken: _cancellationToken);
-    }
-
-
-
-
+    // Cleanup
+    await _cronicleClient.Event.Delete(eventId, _cancellationToken);
+  }
 }

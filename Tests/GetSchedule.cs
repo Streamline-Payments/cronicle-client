@@ -1,144 +1,130 @@
 ﻿using CronicleClient;
 using CronicleClient.Models;
 using FluentAssertions;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit.Abstractions;
 
 namespace Tests;
-public class GetSchedule
+
+public class GetSchedule(ITestOutputHelper outputHelper)
 {
-    private readonly Client _cronicleClient;
-    private readonly CancellationToken _cancellationToken;
+  private readonly CancellationToken _cancellationToken = new CancellationTokenSource().Token;
+  private readonly Client _cronicleClient = Common.InitCronicleClient(outputHelper);
 
-    public GetSchedule(ITestOutputHelper outputHelper)
+  [Fact(DisplayName = "Get an schedule that exists in Cronicle")]
+  public async Task GetExistentSchedule()
+  {
+    // Arrange
+
+    // Act
+    var eventDetails = await _cronicleClient.Event.GetSchedule(cancellationToken: _cancellationToken);
+
+    // Assert
+    eventDetails.Should().NotBeNull();
+  }
+
+  [Fact(DisplayName = "Get an schedule with limit in Cronicle")]
+  public async Task GetExistentScheduleWithLimit()
+  {
+    // Arrange
+    var limit = 10;
+    var offset = 0;
+
+    // Act
+    var eventDetails = await _cronicleClient.Event.GetSchedule(limit, offset, _cancellationToken);
+
+    // Assert
+    eventDetails.Should().NotBeNull();
+    eventDetails.Count().Should().BeLessThanOrEqualTo(limit);
+  }
+
+  [Fact(DisplayName = "Get an schedule with offset in Cronicle")]
+  public async Task GetExistentScheduleWithOffset()
+  {
+    // Arrange
+    var offset = 3;
+
+    // Act
+    var eventDetails = await _cronicleClient.Event.GetSchedule(50, offset, _cancellationToken);
+
+    // Assert
+    eventDetails.Should().NotBeNull();
+  }
+
+  [Fact(DisplayName = "Get an schedule with new event in Cronicle")]
+  public async Task GetScheduleWithEvents()
+  {
+    // Arrange
+    var newEvent = new NewEvent
     {
-        var serverUrl = "http://localhost:3012";
-        var apiKey = "240db114e152267349f17cf768808169";
-        var logger = outputHelper.ToLogger<CreateEvent>();
+      Title = "New event",
+      Enabled = true,
+      Category = "general",
+      Plugin = "testplug",
+      Target = "allgrp",
+      Timing = new Timing
+      {
+        Hours = [4],
+        Minutes = [27],
+        Days = [25],
+        Months = [8],
+        Years = [2024]
+      }
+    };
+    var eventId = await _cronicleClient.Event.Create(newEvent, _cancellationToken);
+    eventId.Should().NotBeEmpty();
 
-        _cronicleClient = new Client(baseUrl: serverUrl, apiToken: apiKey, logger: logger);
-        _cancellationToken = new CancellationTokenSource().Token;
-    }
+    // Act
+    var eventDetails = await _cronicleClient.Event.GetSchedule(cancellationToken: _cancellationToken);
 
-    [Fact(DisplayName = "Get an schedule that exists in Cronicle")]
-    public async Task GetExistentSchedule()
+    // Assert
+    eventDetails.Should().NotBeNull();
+    eventDetails.FirstOrDefault(e => e.Id == eventId).Should().NotBeNull();
+
+    // Cleanup
+    await _cronicleClient.Event.Delete(eventId, _cancellationToken);
+  }
+
+  [Theory]
+  [InlineData(4)]
+  [InlineData(2)]
+  [InlineData(5)]
+  public async Task GetScheduleWithMultipleNewEvents(int eventsNumber)
+  {
+    // Arrange
+    var newIds = new List<string>();
+    for (var i = 0; i < eventsNumber; i++)
     {
-        // Arrange
-
-        // Act
-        var eventDetails = await _cronicleClient.Event.GetSchedule(cancellationToken: _cancellationToken);
-
-        // Assert
-        eventDetails.Should().NotBeNull();
-    }
-
-    [Fact(DisplayName = "Get an schedule with limit in Cronicle")]
-    public async Task GetExistentScheduleWithLimit()
-    {
-        // Arrange
-        int limit = 10;
-
-        // Act
-        var eventDetails = await _cronicleClient.Event.GetSchedule(limit, 0, cancellationToken: _cancellationToken);
-
-        // Assert
-        eventDetails.Should().NotBeNull();
-        eventDetails.Count().Should().BeLessThanOrEqualTo(limit);
-    }
-
-    [Fact(DisplayName = "Get an schedule with offset in Cronicle")]
-    public async Task GetExistentScheduleWithOffset()
-    {
-        // Arrange
-        int offset = 3;
-
-        // Act
-        var eventDetails = await _cronicleClient.Event.GetSchedule(50, offset, cancellationToken: _cancellationToken);
-
-        // Assert
-        eventDetails.Should().NotBeNull();
-    }
-
-    [Fact(DisplayName = "Get an schedule with new event in Cronicle")]
-    public async Task GetScheduleWithEvents()
-    {
-        // Arrange
-        var newEvent = new NewEvent()
+      var newEvent = new NewEvent
+      {
+        Title = $"New event {i + 1}",
+        Enabled = true,
+        Category = "general",
+        Plugin = "testplug",
+        Target = "allgrp",
+        Timing = new Timing
         {
-            Title = "New event",
-            Enabled = true,
-            Category = "general",
-            Plugin = "testplug",
-            Target = "allgrp",
-            Timing = new Timing()
-            {
-                Hours = [4],
-                Minutes = [27],
-                Days = [25],
-                Months = [8],
-                Years = [2024]
-            }
-        };
-        var eventId = await _cronicleClient.Event.Create(eventData: newEvent, cancellationToken: _cancellationToken);
-        eventId.Should().NotBeEmpty();
-
-        // Act
-        var eventDetails = await _cronicleClient.Event.GetSchedule(cancellationToken: _cancellationToken);
-
-        // Assert
-        eventDetails.Should().NotBeNull();
-        eventDetails.FirstOrDefault(e => e.Id == eventId).Should().NotBeNull();
-
-        // Cleanup
-        await _cronicleClient.Event.Delete(eventId: eventId, cancellationToken: _cancellationToken);
+          Hours = [4],
+          Minutes = [27],
+          Days = [25],
+          Months = [8],
+          Years = [2024]
+        }
+      };
+      var eventId = await _cronicleClient.Event.Create(newEvent, _cancellationToken);
+      eventId.Should().NotBeEmpty();
+      newIds.Add(eventId);
     }
 
-    [Theory]
-    [InlineData(4)]
-    [InlineData(2)]
-    [InlineData(5)]
-    public async Task GetScheduleWithMultipleNewEvents(int eventsNumber)
+    // Act
+    var eventDetails = await _cronicleClient.Event.GetSchedule(eventsNumber,0, _cancellationToken);
+
+    // Assert
+    eventDetails.Should().NotBeNull();
+    foreach (var id in newIds)
     {
-        // Arrange
-        List<string> newIds = new List<string>();
-        for (int i = 0; i < eventsNumber; i++) {
-            var newEvent = new NewEvent()
-            {
-                Title = $"New event {i+1}",
-                Enabled = true,
-                Category = "general",
-                Plugin = "testplug",
-                Target = "allgrp",
-                Timing = new Timing()
-                {
-                    Hours = [4],
-                    Minutes = [27],
-                    Days = [25],
-                    Months = [8],
-                    Years = [2024]
-                }
-            };
-            var eventId = await _cronicleClient.Event.Create(eventData: newEvent, cancellationToken: _cancellationToken);
-            eventId.Should().NotBeEmpty();
-            newIds.Add(eventId);
-        }
-
-        // Act
-        var eventDetails = await _cronicleClient.Event.GetSchedule(eventsNumber, 0, cancellationToken: _cancellationToken);
-
-        // Assert
-        eventDetails.Should().NotBeNull();
-        foreach (var id in newIds) { 
-            eventDetails.FirstOrDefault(e => e.Id == id).Should().NotBeNull();
-            // Cleanup
-            await _cronicleClient.Event.Delete(eventId: id, cancellationToken: _cancellationToken);
-        }
-
+      eventDetails.FirstOrDefault(e => e.Id == id).Should().NotBeNull();
+      // Cleanup
+      await _cronicleClient.Event.Delete(id, _cancellationToken);
     }
+  }
 }
-

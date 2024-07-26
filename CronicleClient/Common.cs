@@ -11,27 +11,20 @@ internal static class Common
 {
   public static void EnsureSuccessStatusCode(this BaseEventResponse? response)
   {
-    if (response is null)
-    {
-      throw new Exception("No response was provided from Cronicle server");
-    }
+    if (response is null) throw new Exception("No response was provided from Cronicle server");
 
-    if ((string.Equals(response.Code, "event") && response.Description?.Contains("Failed to locate event") == true ) || (string.Equals(response.Code, "job") && response.Description?.Contains("Failed to locate job") == true))
-    {
-      throw new KeyNotFoundException();
-    }
-    
+    if ((string.Equals(response.Code, "event") && response.Description?.Contains("Failed to locate event") == true) ||
+        (string.Equals(response.Code, "job") && response.Description?.Contains("Failed to locate job") == true)) throw new KeyNotFoundException();
+
     if (!string.Equals(response.Code, "0"))
-    {
       throw new Exception(
         string.Format(
           CultureInfo.InvariantCulture,
           "Cronicle API error: ({0}){1} ",
           response.Code,
           response.Description));
-    }
   }
-  
+
   public class BoolToIntJsonConverter : JsonConverter<bool>
   {
     public override bool Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
@@ -44,7 +37,7 @@ internal static class Common
       writer.WriteNumberValue(value ? 1 : 0);
     }
   }
-  
+
   public class IntToStringJsonConverter : JsonConverter<string>
   {
     public override string? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)

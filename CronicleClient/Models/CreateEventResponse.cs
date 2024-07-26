@@ -2,10 +2,10 @@
 
 namespace CronicleClient.Models;
 
-internal record CreateEventResponse: BaseEventResponse
+internal record CreateEventResponse : BaseEventResponse
 {
   /// <summary>
-  /// The id of the new event.
+  ///   The id of the new event.
   /// </summary>
   [JsonPropertyName("id")]
   public string? Id { get; set; }

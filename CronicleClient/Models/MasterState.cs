@@ -1,19 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
-namespace CronicleClient.Models
+namespace CronicleClient.Models;
+
+internal record MasterState : BaseEventResponse
 {
-    internal record MasterState :BaseEventResponse
-    {
-        public State State { get; set; }
-    }
+  public State State { get; set; }
+}
 
-    internal record State
-    {
-        [JsonPropertyName("enabled")]
-        [JsonConverter(typeof(Common.BoolToIntJsonConverter))]
-        public bool Enabled { get; set; }
-    }
+internal record State
+{
+  [JsonPropertyName("enabled")]
+  [JsonConverter(typeof(Common.BoolToIntJsonConverter))]
+  public bool Enabled { get; set; }
 }

@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-namespace CronicleClient.Models
+namespace CronicleClient.Models;
+
+internal record JobsResponse : BaseEventResponse
 {
-    internal record JobsResponse: BaseEventResponse
-    {
-        /// <summary>
-        /// Collection of jobs
-        /// </summary>
-        [JsonPropertyName("jobs")]
-        public Dictionary<string, JobData> Jobs { get; set; }
-    }
+    /// <summary>
+    ///   Collection of jobs
+    /// </summary>
+    [JsonPropertyName("jobs")]
+  public Dictionary<string, JobData> Jobs { get; set; }
 }

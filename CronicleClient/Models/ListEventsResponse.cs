@@ -2,10 +2,10 @@
 
 namespace CronicleClient.Models;
 
-internal record ListEventsResponse: BaseEventResponse
+internal record ListEventsResponse : BaseEventResponse
 {
   /// <summary>
-  /// A collection of events.
+  ///   A collection of events.
   /// </summary>
   [JsonPropertyName("rows")]
   public EventData[]? EventDataCollection { get; set; }

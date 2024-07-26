@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CronicleClient\CronicleClient.csproj" />
+    <ProjectReference Include="..\CronicleClient\CronicleClient.csproj"/>
   </ItemGroup>
 
 </Project>

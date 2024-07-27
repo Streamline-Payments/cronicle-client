@@ -9,17 +9,11 @@ using Microsoft.Extensions.Logging;
 
 namespace CronicleClient;
 
-public class CronicleJob
+/// <summary>
+/// Class for interacting with Cronicle jobs.
+/// </summary>
+public class CronicleJob(HttpClient httpClient, ILogger logger)
 {
-  private readonly HttpClient _httpClient;
-  private readonly ILogger _logger;
-
-  public CronicleJob(HttpClient httpClient, ILogger logger)
-  {
-    _logger = logger;
-    _httpClient = httpClient;
-  }
-
   private static void EnsureValidJobData(JobDataUpdateRequest jobData)
   {
     // These are required fields
@@ -41,10 +35,10 @@ public class CronicleJob
   {
     if (eventId == default) throw new ArgumentNullException(nameof(eventId));
 
-    _logger.LogDebug($"Fetching job history for event '{eventId}' in Cronicle");
+    logger.LogDebug($"Fetching job history for event '{eventId}' in Cronicle");
     var requestPathWithQuery = $"get_event_history/v1?id={eventId}&offset={offset}&limit={numToFetch}";
 
-    var resp = await _httpClient.GetFromJsonAsync<EventHistoryResponse>(requestPathWithQuery, cancellationToken);
+    var resp = await httpClient.GetFromJsonAsync<EventHistoryResponse>(requestPathWithQuery, cancellationToken);
     resp.EnsureSuccessStatusCode();
     return resp!.JobData ?? Array.Empty<JobData>();
   }
@@ -60,10 +54,10 @@ public class CronicleJob
   /// <exception cref="ArgumentNullException"></exception>
   public async Task<JobData[]> GetHistory(int limit, int offset = 0, CancellationToken cancellationToken = default)
   {
-    _logger.LogDebug("Fetching history for all events in Cronicle");
+    logger.LogDebug("Fetching history for all events in Cronicle");
     var requestPathWithQuery = $"get_history/v1?offset={offset}&limit={limit}";
 
-    var resp = await _httpClient.GetFromJsonAsync<EventHistoryResponse>(requestPathWithQuery, cancellationToken);
+    var resp = await httpClient.GetFromJsonAsync<EventHistoryResponse>(requestPathWithQuery, cancellationToken);
     resp.EnsureSuccessStatusCode();
     return resp!.JobData ?? Array.Empty<JobData>();
   }
@@ -78,10 +72,10 @@ public class CronicleJob
   /// <exception cref="ArgumentNullException"></exception>
   public async Task<JobData?> GetJobStatus(string jobId, CancellationToken cancellationToken = default)
   {
-    _logger.LogDebug("Fetching status for and specific job in Cronicle");
+    logger.LogDebug("Fetching status for and specific job in Cronicle");
     var requestPathWithQuery = $"get_job_status/v1?id={jobId}";
 
-    var resp = await _httpClient.GetFromJsonAsync<JobResponse>(requestPathWithQuery, cancellationToken);
+    var resp = await httpClient.GetFromJsonAsync<JobResponse>(requestPathWithQuery, cancellationToken);
     resp.EnsureSuccessStatusCode();
 
     return resp!.Job ?? null;
@@ -95,10 +89,10 @@ public class CronicleJob
   /// <exception cref="ArgumentNullException"></exception>
   public async Task<Dictionary<string, JobData>?> GetActiveJobs(CancellationToken cancellationToken = default)
   {
-    _logger.LogDebug("Fetching active jobs in Cronicle");
+    logger.LogDebug("Fetching active jobs in Cronicle");
     var requestPathWithQuery = "get_active_jobs/v1";
 
-    var resp = await _httpClient.GetFromJsonAsync<JobsResponse>(requestPathWithQuery, cancellationToken);
+    var resp = await httpClient.GetFromJsonAsync<JobsResponse>(requestPathWithQuery, cancellationToken);
     resp.EnsureSuccessStatusCode();
 
     return resp!.Jobs ?? null;
@@ -119,10 +113,10 @@ public class CronicleJob
   {
     EnsureValidJobData(jobData);
 
-    _logger.LogDebug($"Updating job '{jobData.Id}' in Cronicle");
+    logger.LogDebug($"Updating job '{jobData.Id}' in Cronicle");
     var requestPathWithQuery = "update_job/v1";
 
-    var resp = await _httpClient.PostAsJsonAsync(requestPathWithQuery, jobData, cancellationToken);
+    var resp = await httpClient.PostAsJsonAsync(requestPathWithQuery, jobData, cancellationToken);
     resp.EnsureSuccessStatusCode();
 
     var cronicleResponse = await resp.Content.ReadFromJsonAsync<BaseEventResponse>(cancellationToken);
@@ -138,14 +132,14 @@ public class CronicleJob
   /// <exception cref="ArgumentNullException"></exception>
   public async Task AbortJob(string jobId, CancellationToken cancellationToken = default)
   {
-    _logger.LogDebug("Abort an specific job in Cronicle");
+    logger.LogDebug("Abort an specific job in Cronicle");
 
     object content = new
     {
       id = jobId
     };
 
-    var resp = await _httpClient.PostAsJsonAsync("abort_job/v1", content, cancellationToken);
+    var resp = await httpClient.PostAsJsonAsync("abort_job/v1", content, cancellationToken);
     resp.EnsureSuccessStatusCode();
 
     var cronicleResponse = await resp.Content.ReadFromJsonAsync<BaseEventResponse>(cancellationToken);

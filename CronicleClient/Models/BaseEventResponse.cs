@@ -2,6 +2,9 @@
 
 namespace CronicleClient.Models;
 
+/// <summary>
+/// A structured object containing the response from the CreateEvent API endpoint.
+/// </summary>
 internal record BaseEventResponse
 {
   /// <summary>

@@ -3,6 +3,9 @@ using System.Text.Json.Serialization;
 
 namespace CronicleClient.Models;
 
+/// <summary>
+/// JobData represents the data for a Cronicle job.
+/// </summary>
 public record JobData : EventData
 {
   /// <summary>

@@ -3,6 +3,9 @@ using System.Text.Json.Serialization;
 
 namespace CronicleClient.Models;
 
+/// <summary>
+/// A new event to create in Cronicle.
+/// </summary>
 public record NewEvent
 {
   /// <summary>

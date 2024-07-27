@@ -2,6 +2,9 @@
 
 namespace CronicleClient.Models;
 
+/// <summary>
+/// ListEventsResponse represents the response from a list events request.
+/// </summary>
 internal record ListEventsResponse : BaseEventResponse
 {
   /// <summary>

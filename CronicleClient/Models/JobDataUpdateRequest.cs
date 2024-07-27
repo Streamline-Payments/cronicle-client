@@ -2,18 +2,21 @@
 
 namespace CronicleClient.Models;
 
+/// <summary>
+/// A structured object containing the request to update job data.
+/// </summary>
 public class JobDataUpdateRequest
 {
-    /// <summary>
-    ///   A unique ID assigned to the job when it was first created.
-    /// </summary>
-    [JsonPropertyName("id")]
+  /// <summary>
+  ///   A unique ID assigned to the job when it was first created.
+  /// </summary>
+  [JsonPropertyName("id")]
   public string Id { get; set; } = null!;
 
-    /// <summary>
-    ///   The maximum allowed run time for jobs, specified in seconds.
-    /// </summary>
-    [JsonPropertyName("timeout")]
+  /// <summary>
+  ///   The maximum allowed run time for jobs, specified in seconds.
+  /// </summary>
+  [JsonPropertyName("timeout")]
   [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
   public int? Timeout { get; set; }
 

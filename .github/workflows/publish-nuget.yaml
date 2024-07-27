@@ -1,0 +1,48 @@
+name: release
+
+on:
+  push:
+    tags:
+      - v*.*.*
+      - "!v*.*.*-**"
+  
+jobs:
+  nuget:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+        
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: |
+            8.0.x
+          
+      - name: Restore dependencies
+        run: dotnet restore --verbosity minimal --configfile nuget.config
+      
+      - name: Test
+        run: |
+          mkdir cronicle
+          cd cronicle
+          curl -L https://github.com/jhuckaby/Cronicle/archive/${CRONICLE_VERSION}.tar.gz | tar zxvf - --strip-components 1
+          npm install
+          node bin/build.js dist
+          ./bin/control.sh setup
+          ./bin/control.sh start
+          cd ..
+          
+          dotnet test
+        env:
+          CRONICLE_VERSION: 0.9.56
+        
+      - name: Pack
+        run: dotnet pack -c Release -o pkg --include-symbols --configfile nuget.config ./CronicleClient/CronicleClient.csproj
+        
+      - name: Publish
+        run: dotnet nuget push **/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --skip-duplicate

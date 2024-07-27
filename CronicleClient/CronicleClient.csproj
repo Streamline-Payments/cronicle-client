@@ -4,7 +4,23 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
-
+    <Version>0.1.0</Version>
+    <Title>Croncle Client</Title>
+    <Authors>Streamline Payments</Authors>
+    <Description>A .NET client for the Cronicle Project(https://github.com/jhuckaby/Cronicle).</Description>
+    <PackageProjectUrl>https://github.com/Streamline-Payments/cronicle-client</PackageProjectUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/Streamline-Payments/cronicle-client</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PackageTags>cronicle;taks;scheduling</PackageTags>
+    <TreatSpecificWarningsAsErrors />
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>

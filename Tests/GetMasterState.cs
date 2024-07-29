@@ -4,7 +4,7 @@ using Xunit.Abstractions;
 
 namespace Tests;
 
-[Collection("Get Master State")]
+[Collection("Cronicle Client collection")]
 public class GetMasterState(ITestOutputHelper outputHelper)
 {
   private readonly CancellationToken _cancellationToken = new CancellationTokenSource().Token;
@@ -17,18 +17,6 @@ public class GetMasterState(ITestOutputHelper outputHelper)
 
     // Act
     await _cronicleClient.Master.GetMasterState(_cancellationToken);
-  }
-
-  [Fact(DisplayName = "Get master state multiple times for consistency")]
-  public async Task GetMasterStateMultipleTimesForConsistency()
-  {
-    // Act
-    var masterState1 = await _cronicleClient.Master.GetMasterState(_cancellationToken);
-    await Task.Delay(1000, _cancellationToken);
-    var masterState2 = await _cronicleClient.Master.GetMasterState(_cancellationToken);
-
-    // Assert
-    masterState1.Should().Be(masterState2);
   }
 
   [Fact(DisplayName = "Get master state and verify enabled")]

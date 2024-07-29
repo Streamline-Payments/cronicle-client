@@ -5,7 +5,7 @@ using Xunit.Abstractions;
 
 namespace Tests;
 
-[Collection("Get Event By Title")]
+[Collection("Cronicle Client collection")]
 public class GetEventByTitle(ITestOutputHelper outputHelper)
 {
   private readonly CancellationToken _cancellationToken = new CancellationTokenSource().Token;

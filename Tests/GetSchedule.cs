@@ -5,7 +5,7 @@ using Xunit.Abstractions;
 
 namespace Tests;
 
-[Collection("Get Schedule")]
+[Collection("Cronicle Client collection")]
 public class GetSchedule(ITestOutputHelper outputHelper)
 {
   private readonly CancellationToken _cancellationToken = new CancellationTokenSource().Token;

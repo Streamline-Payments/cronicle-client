@@ -4,7 +4,7 @@ using Xunit.Abstractions;
 
 namespace Tests;
 
-[Collection("Update Master State")]
+[Collection("Cronicle Client collection")]
 public class UpdateMasterState(ITestOutputHelper outputHelper)
 {
   private readonly CancellationToken _cancellationToken = new CancellationTokenSource().Token;

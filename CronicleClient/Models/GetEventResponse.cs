@@ -4,6 +4,9 @@ using System.Text.Json.Serialization;
 
 namespace CronicleClient.Models;
 
+/// <summary>
+/// A structured object containing the response from the GetEvent API endpoint.
+/// </summary>
 internal record GetEventResponse : BaseEventResponse
 {
   /// <summary>

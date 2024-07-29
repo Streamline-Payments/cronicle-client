@@ -3,6 +3,9 @@ using System.Text.Json.Serialization;
 
 namespace CronicleClient.Models;
 
+/// <summary>
+/// A Cronicle event data object.
+/// </summary>
 public record EventData
 {
   /// <summary>
@@ -248,9 +251,4 @@ public record EventData
   [JsonPropertyName("web_hook")]
   [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
   public string? WebHook { get; set; }
-
-  public void ClearTiming()
-  {
-    Timing = new Timing();
-  }
 }

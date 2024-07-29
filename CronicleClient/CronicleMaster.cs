@@ -8,31 +8,27 @@ using Microsoft.Extensions.Logging;
 
 namespace CronicleClient;
 
-public class CronicleMaster
+/// <summary>
+/// A class that represents the Cronicle Master API.
+/// </summary>
+/// <param name="httpClient"></param>
+/// <param name="logger"></param>
+public class CronicleMaster(HttpClient httpClient, ILogger logger)
 {
-  private readonly HttpClient _httpClient;
-  private readonly ILogger _logger;
-
-  public CronicleMaster(HttpClient httpClient, ILogger logger)
-  {
-    _logger = logger;
-    _httpClient = httpClient;
-  }
-
   /// <summary>
   ///   This fetches the current application "state", which contains information like the status of the scheduler (enabled or disabled).
   /// </summary>
   /// <param name="cancellationToken"></param>
   /// <returns></returns>
-  public async Task<bool> GetMasterState(CancellationToken cancellationToken = default)
+  public async Task<bool?> GetMasterState(CancellationToken cancellationToken = default)
   {
-    _logger.LogDebug("Fetching master state in Cronicle");
+    logger.LogDebug("Fetching master state in Cronicle");
     var requestPathWithQuery = "get_master_state/v1";
 
-    var resp = await _httpClient.GetFromJsonAsync<MasterState>(requestPathWithQuery, cancellationToken);
+    var resp = await httpClient.GetFromJsonAsync<MasterState>(requestPathWithQuery, cancellationToken);
     resp.EnsureSuccessStatusCode();
 
-    return resp!.State.Enabled;
+    return resp!.State?.Enabled;
   }
 
   /// <summary>
@@ -44,14 +40,14 @@ public class CronicleMaster
   /// <exception cref="ArgumentNullException"></exception>
   public async Task UpdateMasterState(bool newMasterState, CancellationToken cancellationToken = default)
   {
-    _logger.LogDebug("Update master state in Cronicle");
+    logger.LogDebug("Update master state in Cronicle");
 
     State content = new()
     {
       Enabled = newMasterState
     };
 
-    var resp = await _httpClient.PostAsJsonAsync("update_master_state/v1", content, cancellationToken);
+    var resp = await httpClient.PostAsJsonAsync("update_master_state/v1", content, cancellationToken);
     resp.EnsureSuccessStatusCode();
 
     var cronicleResponse = await resp.Content.ReadFromJsonAsync<BaseEventResponse>(cancellationToken);

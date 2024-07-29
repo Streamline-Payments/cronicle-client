@@ -29,7 +29,7 @@ public class UpdateMasterState(ITestOutputHelper outputHelper)
   public async Task ToggleMasterStatus()
   {
     // Arrange
-    var initialStatus = await _cronicleClient.Master.GetMasterState(_cancellationToken);
+    var initialStatus = await _cronicleClient.Master.GetMasterState(_cancellationToken) ?? throw new Exception();
     var newStatus = !initialStatus;
 
     // Act

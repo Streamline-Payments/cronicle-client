@@ -6,7 +6,7 @@ namespace Examples;
 
 public class GetEvent(string croniclePrimaryServerUrl, string cronicleApiKey, ILogger logger)
 {
-  private readonly Client _cronicleClient = new Client(new Uri(croniclePrimaryServerUrl), cronicleApiKey, logger);
+  private readonly Client _cronicleClient = new Client(croniclePrimaryServerUrl, cronicleApiKey, logger);
 
   public Task<EventData?> Get(string eventId, CancellationToken cancellationToken)
   {

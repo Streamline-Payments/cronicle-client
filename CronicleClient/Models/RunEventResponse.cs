@@ -2,6 +2,9 @@
 
 namespace CronicleClient.Models;
 
+/// <summary>
+/// A structured object containing the response from the RunEvent API endpoint.
+/// </summary>
 internal record RunEventResponse : BaseEventResponse
 {
   /// <summary>

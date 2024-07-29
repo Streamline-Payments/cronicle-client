@@ -6,7 +6,7 @@ namespace Examples;
 
 public class CreateEvent(string croniclePrimaryServerUrl, string cronicleApiKey, ILogger logger)
 {
-  private readonly Client _cronicleClient = new Client(new Uri(croniclePrimaryServerUrl), cronicleApiKey, logger);
+  private readonly Client _cronicleClient = new Client(croniclePrimaryServerUrl, cronicleApiKey, logger);
 
   /// <summary>
   ///   Every year on Christmas at midnight UTC
@@ -22,7 +22,7 @@ public class CreateEvent(string croniclePrimaryServerUrl, string cronicleApiKey,
       Enabled = true,
       Plugin = "XXXXX",
       Target = "allgrp",
-      Parameters = new Dictionary<string, string>
+      Parameters = new Dictionary<string, object>
       {
         { "SOMETHING", "123asd" }
       },
@@ -55,7 +55,7 @@ public class CreateEvent(string croniclePrimaryServerUrl, string cronicleApiKey,
       Enabled = true,
       Plugin = "XXXXX",
       Target = "allgrp",
-      Parameters = new Dictionary<string, string>
+      Parameters = new Dictionary<string, object>
       {
         { "SOMETHING", "123asd" }
       },

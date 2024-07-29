@@ -1,0 +1,73 @@
+name: release
+
+on:
+  push:
+    tags:
+      - v*.*.*
+      - "!v*.*.*-**"
+
+env: 
+  CRONICLE_VERSION: 0.9.56
+  DOTNET_VERSION: 8.0.x
+  NODE_VERSION: 14.x
+  CRONICLE_BASE_URL: http://localhost:3012
+  CRONICLE_API_KEY: 897e07c49bdb71cb52b4a94762530efc
+
+jobs:
+  nuget:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+        
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+          
+      - name: Restore dependencies
+        continue-on-error: false
+        run: dotnet restore --verbosity minimal --configfile nuget.config
+        
+      - name: Install & configure cronicle
+        continue-on-error: false
+        run: |
+          mkdir cronicle
+          cd cronicle
+          curl -L https://github.com/jhuckaby/Cronicle/archive/${{ env.CRONICLE_VERSION }}.tar.gz | tar zxvf - --strip-components 1
+          npm install
+          node bin/build.js dist
+          
+          # Add api key to storage json setup and overwrite setup.json
+          jq --argjson p '[ "listPush", "global/api_keys", {"privileges":{"admin":0,"create_events":1,"edit_events":1,"delete_events":1,"run_events":1,"abort_events":1,"state_update":1},"key":"${{ env.CRONICLE_API_KEY }}","active":"1","title":"Test key","description":"","id":"klz6u9xu501","username":"admin","modified":1722248477,"created":1722248477} ]' '.storage += [$p]' ./conf/setup.json > ./conf/setup.json.tmp
+          
+          mv ./conf/setup.json.tmp ./conf/setup.json
+          
+          # Setup Cronicle
+          ./bin/control.sh setup
+      
+      - name: Start Cronicle
+        run: |
+          ./cronicle/bin/control.sh start
+
+          # Wait for Cronicle
+          while ! curl -s ${{ env.CRONICLE_BASE_URL }} > /dev/null; do sleep 1; done
+          
+      - name: Test
+        run: |
+          export CRONICLE_BASE_URL=${{ env.CRONICLE_BASE_URL }}
+          export CRONICLE_API_KEY=${{ env.CRONICLE_API_KEY }}
+          
+          dotnet test --no-restore --verbosity minimal
+          
+          ./cronicle/bin/control.sh stop
+        
+      - name: Pack
+        run: dotnet pack -c Release -o pkg --include-symbols --configfile nuget.config ./CronicleClient/CronicleClient.csproj
+        
+      - name: Publish
+        run: dotnet nuget push **/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --skip-duplicate

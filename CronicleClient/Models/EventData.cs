@@ -23,6 +23,20 @@ public record EventData
   public string? ChainError { get; set; }
 
   /// <summary>
+  ///   The chain data to send when the event is launched.
+  /// </summary>
+  [JsonPropertyName("chain_data")]
+  [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+  public Dictionary<string, object>? ChainData { get; set; }
+
+  /// <summary>
+  ///   The chain params to send when the event is launched.
+  /// </summary>
+  [JsonPropertyName("chain_params")]
+  [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+  public Dictionary<string, object>? ChainParams { get; set; }
+
+  /// <summary>
   ///   The date/time of the event's initial creation, in Epoch seconds.
   /// </summary>
   [JsonPropertyName("created")]

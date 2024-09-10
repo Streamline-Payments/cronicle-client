@@ -23,6 +23,20 @@ public record NewEvent
   public string? ChainError { get; set; }
 
   /// <summary>
+  ///   The chain data to send when the event is launched.
+  /// </summary>
+  [JsonPropertyName("chain_data")]
+  [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+  public Dictionary<string, object>? ChainData { get; set; }
+
+  /// <summary>
+  ///   The chain params to send when the event is launched.
+  /// </summary>
+  [JsonPropertyName("chain_params")]
+  [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+  public Dictionary<string, object>? ChainParams { get; set; }
+
+  /// <summary>
   ///   Allow jobs to be queued up when they can't run immediately.
   /// </summary>
   [JsonPropertyName("queue")]

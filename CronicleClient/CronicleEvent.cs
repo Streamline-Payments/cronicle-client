@@ -11,13 +11,34 @@ using Microsoft.Extensions.Logging;
 
 namespace CronicleClient;
 
+public interface ICronicleEvent
+{
+    Task<IEnumerable<EventData>> GetSchedule(int limit = 50, int offset = 0, CancellationToken cancellationToken = default);
+    Task<EventData?> GetById(string eventId, CancellationToken cancellationToken = default);
+    Task<EventData?> GetByTitle(string eventTitle, CancellationToken cancellationToken = default);
+    Task<string> Create(NewEvent eventData, CancellationToken cancellationToken = default);
+    Task Update(EventData eventData, bool resetCursor = false, bool abortJobs = false, CancellationToken cancellationToken = default);
+    Task Delete(string eventId, CancellationToken cancellationToken = default);
+    Task<string[]?> RunEventById(string eventId, CancellationToken cancellationToken = default);
+    Task<string[]?> RunEventByTitle(string eventTitle, CancellationToken cancellationToken = default);
+}
+
+
 /// <summary>
 /// Class for interacting with Cronicle events.
 /// </summary>
 /// <param name="httpClient"></param>
 /// <param name="logger"></param>
-public class CronicleEvent(HttpClient httpClient, ILogger logger)
+public class CronicleEvent: ICronicleEvent
 {
+  private readonly HttpClient httpClient;
+  private readonly ILogger logger;
+
+  public CronicleEvent(HttpClient httpClient, ILogger logger)
+  {
+     this.httpClient = httpClient;
+     this.logger = logger;
+  }
   private static void EnsureValidEventData(EventData eventData)
   {
     // These are required fields

@@ -8,19 +8,37 @@ using Microsoft.Extensions.Logging;
 
 namespace CronicleClient;
 
+public interface ICronicleMaster
+{
+    Task<bool?> GetMasterState(CancellationToken cancellationToken = default);
+    Task UpdateMasterState(bool newMasterState, CancellationToken cancellationToken = default);
+}
+
+
 /// <summary>
 /// A class that represents the Cronicle Master API.
 /// </summary>
 /// <param name="httpClient"></param>
 /// <param name="logger"></param>
-public class CronicleMaster(HttpClient httpClient, ILogger logger)
+public class CronicleMaster : ICronicleMaster
 {
-  /// <summary>
-  ///   This fetches the current application "state", which contains information like the status of the scheduler (enabled or disabled).
-  /// </summary>
-  /// <param name="cancellationToken"></param>
-  /// <returns></returns>
-  public async Task<bool?> GetMasterState(CancellationToken cancellationToken = default)
+
+    private readonly HttpClient httpClient;
+    private readonly ILogger logger;
+
+    public CronicleMaster(HttpClient httpClient, ILogger logger)
+    {
+        this.httpClient = httpClient;
+        this.logger = logger;
+    }
+
+
+    /// <summary>
+    ///   This fetches the current application "state", which contains information like the status of the scheduler (enabled or disabled).
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public async Task<bool?> GetMasterState(CancellationToken cancellationToken = default)
   {
     logger.LogDebug("Fetching master state in Cronicle");
     var requestPathWithQuery = "get_master_state/v1";

@@ -47,6 +47,11 @@ public class ChainReaction(ITestOutputHelper outputHelper)
                 { "Param2", 120 },
                 { "Param3", "P2" },
             },
+            ChainParams = new Dictionary<string, object>() {
+                { "Param1", "P1" },
+                { "Param2", 120 },
+                { "Param3", "P2" },
+            },
             Timing = new Timing
             {
                 Hours = [4],

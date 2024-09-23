@@ -1,16 +1,9 @@
 ﻿using System;
 using System.Net.Http;
+using CronicleClient.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace CronicleClient;
-
-public interface ICronicleClient
-{
-    CronicleEvent Event { get; }
-    CronicleJob Job { get; }
-    CronicleMaster Master { get; }
-}
-
 
 /// <summary>
 /// Cronicle API client

@@ -6,23 +6,11 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using CronicleClient.Interfaces;
 using CronicleClient.Models;
 using Microsoft.Extensions.Logging;
 
 namespace CronicleClient;
-
-public interface ICronicleEvent
-{
-    Task<IEnumerable<EventData>> GetSchedule(int limit = 50, int offset = 0, CancellationToken cancellationToken = default);
-    Task<EventData?> GetById(string eventId, CancellationToken cancellationToken = default);
-    Task<EventData?> GetByTitle(string eventTitle, CancellationToken cancellationToken = default);
-    Task<string> Create(NewEvent eventData, CancellationToken cancellationToken = default);
-    Task Update(EventData eventData, bool resetCursor = false, bool abortJobs = false, CancellationToken cancellationToken = default);
-    Task Delete(string eventId, CancellationToken cancellationToken = default);
-    Task<string[]?> RunEventById(string eventId, CancellationToken cancellationToken = default);
-    Task<string[]?> RunEventById(string eventId, EventData eventData, CancellationToken cancellationToken = default);
-    Task<string[]?> RunEventByTitle(string eventTitle, CancellationToken cancellationToken = default);
-}
 
 
 /// <summary>

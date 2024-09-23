@@ -3,17 +3,11 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using CronicleClient.Interfaces;
 using CronicleClient.Models;
 using Microsoft.Extensions.Logging;
 
 namespace CronicleClient;
-
-public interface ICronicleMaster
-{
-    Task<bool?> GetMasterState(CancellationToken cancellationToken = default);
-    Task UpdateMasterState(bool newMasterState, CancellationToken cancellationToken = default);
-}
-
 
 /// <summary>
 /// A class that represents the Cronicle Master API.

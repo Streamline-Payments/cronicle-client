@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using CronicleClient.Interfaces;
 using CronicleClient.Models;
 using Microsoft.Extensions.Logging;
 
@@ -12,9 +13,19 @@ namespace CronicleClient;
 /// <summary>
 /// Class for interacting with Cronicle jobs.
 /// </summary>
-public class CronicleJob(HttpClient httpClient, ILogger logger)
+public class CronicleJob : ICronicleJob
 {
-  private static void EnsureValidJobData(JobDataUpdateRequest jobData)
+
+  private readonly HttpClient httpClient;
+  private readonly ILogger logger;
+
+  public CronicleJob(HttpClient httpClient, ILogger logger)
+  {
+     this.httpClient = httpClient;
+     this.logger = logger;
+  }
+
+    private static void EnsureValidJobData(JobDataUpdateRequest jobData)
   {
     // These are required fields
     if (jobData == default) throw new ArgumentNullException(nameof(jobData));

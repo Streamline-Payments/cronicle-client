@@ -6,18 +6,28 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using CronicleClient.Interfaces;
 using CronicleClient.Models;
 using Microsoft.Extensions.Logging;
 
 namespace CronicleClient;
+
 
 /// <summary>
 /// Class for interacting with Cronicle events.
 /// </summary>
 /// <param name="httpClient"></param>
 /// <param name="logger"></param>
-public class CronicleEvent(HttpClient httpClient, ILogger logger)
+public class CronicleEvent: ICronicleEvent
 {
+  private readonly HttpClient httpClient;
+  private readonly ILogger logger;
+
+  public CronicleEvent(HttpClient httpClient, ILogger logger)
+  {
+     this.httpClient = httpClient;
+     this.logger = logger;
+  }
   private static void EnsureValidEventData(EventData eventData)
   {
     // These are required fields
@@ -180,13 +190,31 @@ public class CronicleEvent(HttpClient httpClient, ILogger logger)
     return cronicleResponse?.Ids;
   }
 
-  /// <summary>
-  ///   This runs event, given its exact title.
-  /// </summary>
-  /// <param name="eventTitle"></param>
-  /// <param name="cancellationToken"></param>
-  /// <returns>The list of IDs of the new jobs</returns>
-  public async Task<string[]?> RunEventByTitle(string eventTitle, CancellationToken cancellationToken = default)
+    /// <summary>
+    ///   This runs an event, given its ID.
+    /// </summary>
+    /// <param name="eventId"></param>
+    /// <param name="eventData"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>The list of IDs of the new jobs</returns>
+    public async Task<string[]?> RunEventById(string eventId, EventData eventData, CancellationToken cancellationToken = default)
+    {
+         logger.LogDebug($"Running event '{eventId}' from Cronicle");
+         var resp = await httpClient.PostAsJsonAsync($"run_event/v1?id={eventId}", eventData, cancellationToken);
+         resp.EnsureSuccessStatusCode();
+
+         var cronicleResponse = await resp.Content.ReadFromJsonAsync<RunEventResponse>(cancellationToken);
+         cronicleResponse.EnsureSuccessStatusCode();
+         return cronicleResponse?.Ids;
+    }
+
+    /// <summary>
+    ///   This runs event, given its exact title.
+    /// </summary>
+    /// <param name="eventTitle"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>The list of IDs of the new jobs</returns>
+    public async Task<string[]?> RunEventByTitle(string eventTitle, CancellationToken cancellationToken = default)
   {
     logger.LogDebug($"Running event '{eventTitle}' from Cronicle");
 

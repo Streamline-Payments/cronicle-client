@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Http;
+using CronicleClient.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace CronicleClient;
@@ -10,24 +11,32 @@ namespace CronicleClient;
 /// <param name="baseUrl"></param>
 /// <param name="apiToken"></param>
 /// <param name="logger"></param>
-public class Client(string baseUrl, string apiToken, ILogger logger)
+public class Client : ICronicleClient
 {
-  private readonly HttpClient _apiClient = new()
-  {
-    BaseAddress = new Uri(string.Concat(baseUrl.TrimEnd('/'), "/api/app/")),
-    DefaultRequestHeaders = { { "X-API-Key", apiToken } }
-  };
-  
+
+    private readonly HttpClient _apiClient;
+    private readonly ILogger _logger;
+
+    public Client(string baseUrl, string apiToken, ILogger logger)
+    {
+        _logger = logger;
+        _apiClient = new HttpClient
+        {
+            BaseAddress = new Uri(string.Concat(baseUrl.TrimEnd('/'), "/api/app/")),
+            DefaultRequestHeaders = { { "X-API-Key", apiToken } }
+        };
+    }
+
   /// <summary>
   /// A Cronicle event
   /// </summary>
-  public CronicleEvent Event => new(_apiClient, logger);
+  public CronicleEvent Event => new(_apiClient, _logger);
   /// <summary>
   /// A Cronicle job
   /// </summary>
-  public CronicleJob Job => new(_apiClient, logger);
+  public CronicleJob Job => new(_apiClient, _logger);
   /// <summary>
   /// A Cronicle master
   /// </summary>
-  public CronicleMaster Master => new(_apiClient, logger);
+  public CronicleMaster Master => new(_apiClient, _logger);
 }

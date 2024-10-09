@@ -6,9 +6,9 @@ namespace CronicleClient.Interfaces
 {
     public interface ICronicleClient
     {
-        CronicleEvent Event { get; }
-        CronicleJob Job { get; }
-        CronicleMaster Master { get; }
+        ICronicleEvent Event { get; }
+        ICronicleJob Job { get; }
+        ICronicleMaster Master { get; }
     }
 
 }

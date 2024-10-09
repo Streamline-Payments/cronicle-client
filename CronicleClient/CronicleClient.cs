@@ -27,16 +27,16 @@ public class Client : ICronicleClient
         };
     }
 
-  /// <summary>
-  /// A Cronicle event
-  /// </summary>
-  public CronicleEvent Event => new(_apiClient, _logger);
-  /// <summary>
-  /// A Cronicle job
-  /// </summary>
-  public CronicleJob Job => new(_apiClient, _logger);
-  /// <summary>
-  /// A Cronicle master
-  /// </summary>
-  public CronicleMaster Master => new(_apiClient, _logger);
+    /// <summary>
+    /// A Cronicle event
+    /// </summary>
+    public ICronicleEvent Event => new CronicleEvent(_apiClient, _logger);
+    /// <summary>
+    /// A Cronicle job
+    /// </summary>
+    public ICronicleJob Job => new CronicleJob(_apiClient, _logger);
+    /// <summary>
+    /// A Cronicle master
+    /// </summary>
+    public ICronicleMaster Master => new CronicleMaster(_apiClient, _logger);
 }

@@ -130,7 +130,7 @@ public class CronicleJob : ICronicleJob
     var resp = await httpClient.PostAsJsonAsync(requestPathWithQuery, jobData, cancellationToken);
     resp.EnsureSuccessStatusCode();
 
-    var cronicleResponse = await resp.Content.ReadFromJsonAsync<BaseEventResponse>(cancellationToken);
+    var cronicleResponse = await resp.Content.ReadFromJsonAsync<BaseEventResponse>(cancellationToken: cancellationToken);
     cronicleResponse.EnsureSuccessStatusCode();
   }
 
@@ -153,7 +153,7 @@ public class CronicleJob : ICronicleJob
     var resp = await httpClient.PostAsJsonAsync("abort_job/v1", content, cancellationToken);
     resp.EnsureSuccessStatusCode();
 
-    var cronicleResponse = await resp.Content.ReadFromJsonAsync<BaseEventResponse>(cancellationToken);
+    var cronicleResponse = await resp.Content.ReadFromJsonAsync<BaseEventResponse>(cancellationToken: cancellationToken);
     cronicleResponse.EnsureSuccessStatusCode();
   }
 }

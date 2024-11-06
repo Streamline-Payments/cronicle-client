@@ -93,7 +93,7 @@ public class CronicleEvent: ICronicleEvent
     var resp = await httpClient.PostAsync("get_event/v1", content, cancellationToken);
     resp.EnsureSuccessStatusCode();
 
-    var cronicleResponse = await resp.Content.ReadFromJsonAsync<GetEventResponse>(cancellationToken);
+    var cronicleResponse = await resp.Content.ReadFromJsonAsync<GetEventResponse>(cancellationToken: cancellationToken);
     cronicleResponse.EnsureSuccessStatusCode();
 
     return cronicleResponse?.EventData;
@@ -115,7 +115,7 @@ public class CronicleEvent: ICronicleEvent
     var resp = await httpClient.PostAsJsonAsync("create_event/v1", eventData, cancellationToken);
     resp.EnsureSuccessStatusCode();
 
-    var cronicleResponse = await resp.Content.ReadFromJsonAsync<CreateEventResponse>(cancellationToken);
+    var cronicleResponse = await resp.Content.ReadFromJsonAsync<CreateEventResponse>(cancellationToken: cancellationToken);
     cronicleResponse.EnsureSuccessStatusCode();
 
     if (string.IsNullOrEmpty(cronicleResponse!.Id)) throw new Exception("Cronicle event was created but the id was not provided");
@@ -143,7 +143,7 @@ public class CronicleEvent: ICronicleEvent
     var resp = await httpClient.PutAsJsonAsync(requestPathWithQuery, eventData, cancellationToken);
     resp.EnsureSuccessStatusCode();
 
-    var cronicleResponse = await resp.Content.ReadFromJsonAsync<BaseEventResponse>(cancellationToken);
+    var cronicleResponse = await resp.Content.ReadFromJsonAsync<BaseEventResponse>(cancellationToken: cancellationToken);
     cronicleResponse.EnsureSuccessStatusCode();
   }
 
@@ -165,7 +165,7 @@ public class CronicleEvent: ICronicleEvent
     var resp = await httpClient.PostAsync("delete_event/v1", content, cancellationToken);
     resp.EnsureSuccessStatusCode();
 
-    var cronicleResponse = await resp.Content.ReadFromJsonAsync<BaseEventResponse>(cancellationToken);
+    var cronicleResponse = await resp.Content.ReadFromJsonAsync<BaseEventResponse>(cancellationToken: cancellationToken);
     //if (cronicleResponse.Description?.Contains("Failed to locate event") == true)
     //{
     //    throw new KeyNotFoundException();
@@ -185,7 +185,7 @@ public class CronicleEvent: ICronicleEvent
     var resp = await httpClient.GetAsync($"run_event/v1?id={eventId}", cancellationToken);
     resp.EnsureSuccessStatusCode();
 
-    var cronicleResponse = await resp.Content.ReadFromJsonAsync<RunEventResponse>(cancellationToken);
+    var cronicleResponse = await resp.Content.ReadFromJsonAsync<RunEventResponse>(cancellationToken: cancellationToken);
     cronicleResponse.EnsureSuccessStatusCode();
     return cronicleResponse?.Ids;
   }
@@ -203,7 +203,7 @@ public class CronicleEvent: ICronicleEvent
          var resp = await httpClient.PostAsJsonAsync($"run_event/v1?id={eventId}", eventData, cancellationToken);
          resp.EnsureSuccessStatusCode();
 
-         var cronicleResponse = await resp.Content.ReadFromJsonAsync<RunEventResponse>(cancellationToken);
+         var cronicleResponse = await resp.Content.ReadFromJsonAsync<RunEventResponse>(cancellationToken: cancellationToken);
          cronicleResponse.EnsureSuccessStatusCode();
          return cronicleResponse?.Ids;
     }
@@ -223,7 +223,7 @@ public class CronicleEvent: ICronicleEvent
     var resp = await httpClient.PostAsync("run_event/v1", content, cancellationToken);
     resp.EnsureSuccessStatusCode();
 
-    var cronicleResponse = await resp.Content.ReadFromJsonAsync<RunEventResponse>(cancellationToken);
+    var cronicleResponse = await resp.Content.ReadFromJsonAsync<RunEventResponse>(cancellationToken: cancellationToken);
     cronicleResponse.EnsureSuccessStatusCode();
     return cronicleResponse?.Ids;
   }

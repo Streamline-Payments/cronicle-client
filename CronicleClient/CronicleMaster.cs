@@ -62,7 +62,7 @@ public class CronicleMaster : ICronicleMaster
     var resp = await httpClient.PostAsJsonAsync("update_master_state/v1", content, cancellationToken);
     resp.EnsureSuccessStatusCode();
 
-    var cronicleResponse = await resp.Content.ReadFromJsonAsync<BaseEventResponse>(cancellationToken);
+    var cronicleResponse = await resp.Content.ReadFromJsonAsync<BaseEventResponse>(cancellationToken: cancellationToken);
     cronicleResponse.EnsureSuccessStatusCode();
   }
 }

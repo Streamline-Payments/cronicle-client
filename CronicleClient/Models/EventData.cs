@@ -244,7 +244,7 @@ public record EventData
   ///   An object describing when to run scheduled jobs.
   /// </summary>
   [JsonPropertyName("timing")]
-  public Timing Timing { get; set; } = null!;
+  public Timing? Timing { get; set; }
 
   /// <summary>
   ///   A display name for the event, shown on the Schedule Tab as well as in reports and e-mails.

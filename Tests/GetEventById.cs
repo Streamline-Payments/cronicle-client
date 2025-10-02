@@ -12,24 +12,50 @@ public class GetEventById(ITestOutputHelper outputHelper)
   private readonly Client _cronicleClient = Common.InitCronicleClient(outputHelper);
 
   [Fact(DisplayName = "Get an event that exists in Cronicle")]
-  public async Task GetExistingEvent()
+     public async Task GetExistingEvent()
+     {
+       // Arrange
+       var newEvent = new NewEvent
+       {
+         Title = "A title",
+         Enabled = true,
+         Category = "general",
+         Plugin = "testplug",
+         Target = "allgrp",
+         Timing = new Timing
+         {
+           Hours = [4],
+           Minutes = [27],
+           Days = [25],
+           Months = [8],
+           Years = [2024]
+         }
+       };
+       var eventId = await _cronicleClient.Event.Create(newEvent, _cancellationToken);
+       eventId.Should().NotBeEmpty();
+
+       // Act
+       var eventDetails = await _cronicleClient.Event.GetById(eventId, _cancellationToken);
+
+       // Assert
+       eventDetails.Should().NotBeNull();
+
+       // Cleanup
+       await _cronicleClient.Event.Delete(eventId, _cancellationToken);
+     }
+
+  [Fact(DisplayName = "Get an on-demand event that exists in Cronicle")]
+  public async Task GetOnDemandEvent()
   {
     // Arrange
     var newEvent = new NewEvent
     {
       Title = "A title",
       Enabled = true,
-      Category = "general",
+      Category = "createInvoice",
       Plugin = "testplug",
       Target = "allgrp",
-      Timing = new Timing
-      {
-        Hours = [4],
-        Minutes = [27],
-        Days = [25],
-        Months = [8],
-        Years = [2024]
-      }
+      Timing = null
     };
     var eventId = await _cronicleClient.Event.Create(newEvent, _cancellationToken);
     eventId.Should().NotBeEmpty();
@@ -39,11 +65,11 @@ public class GetEventById(ITestOutputHelper outputHelper)
 
     // Assert
     eventDetails.Should().NotBeNull();
+    eventDetails!.Timing.Should().BeNull();
 
     // Cleanup
     await _cronicleClient.Event.Delete(eventId, _cancellationToken);
   }
-
 
   [Fact(DisplayName = "Get an event that does not exists in Cronicle")]
   public async Task GetNotExistentEvent()

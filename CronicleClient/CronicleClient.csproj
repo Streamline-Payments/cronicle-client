@@ -1,10 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.1;netstandard2.0</TargetFrameworks>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
-    <Version>0.2.2</Version>
+    <Version>0.3.0</Version>
     <Title>Croncle Client</Title>
     <Authors>Streamline Payments</Authors>
     <Description>A .NET client library for interacting with a Cronicle server.</Description>

@@ -22,6 +22,6 @@ internal record State
   /// A flag indicating whether the Cronicle master is enabled.
   /// </summary>
   [JsonPropertyName("enabled")]
-  [JsonConverter(typeof(Common.BoolToIntJsonConverter))]
+  [JsonConverter(typeof(Common.IntToBoolJsonConverter))]
   public bool Enabled { get; set; }
 }

@@ -47,7 +47,7 @@ public record JobData : EventData
   ///   Will be set to 1 when the job is complete, omitted if still in progress.
   /// </summary>
   [JsonPropertyName("complete")]
-  [JsonConverter(typeof(Common.BoolToIntJsonConverter))]
+  [JsonConverter(typeof(Common.IntToBoolJsonConverter))]
   public bool? Complete { get; set; }
 
   /// <summary>

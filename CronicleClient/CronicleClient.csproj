@@ -4,7 +4,7 @@
     <TargetFrameworks>netstandard2.1;netstandard2.0</TargetFrameworks>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
-    <Version>0.3.0</Version>
+    <Version>0.3.1</Version>
     <Title>Croncle Client</Title>
     <Authors>Streamline Payments</Authors>
     <Description>A .NET client library for interacting with a Cronicle server.</Description>

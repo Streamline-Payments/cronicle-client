@@ -48,7 +48,7 @@ public record EventData
   /// </summary>
   [JsonPropertyName("queue")]
   [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-  [JsonConverter(typeof(Common.BoolToIntJsonConverter))]
+  [JsonConverter(typeof(Common.IntToBoolJsonConverter))]
   public bool? Queue { get; set; }
 
   /// <summary>
@@ -77,7 +77,7 @@ public record EventData
   /// </summary>
   [JsonPropertyName("catch_up")]
   [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-  [JsonConverter(typeof(Common.BoolToIntJsonConverter))]
+  [JsonConverter(typeof(Common.IntToBoolJsonConverter))]
   public bool? CatchUp { get; set; }
 
   /// <summary>
@@ -111,14 +111,14 @@ public record EventData
   /// </summary>
   [JsonPropertyName("detached")]
   [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-  [JsonConverter(typeof(Common.BoolToIntJsonConverter))]
+  [JsonConverter(typeof(Common.IntToBoolJsonConverter))]
   public bool? Detached { get; set; }
 
   /// <summary>
   ///   Specifies whether the event is enabled (active in the scheduler) or not.
   /// </summary>
   [JsonPropertyName("enabled")]
-  [JsonConverter(typeof(Common.BoolToIntJsonConverter))]
+  [JsonConverter(typeof(Common.IntToBoolJsonConverter))]
   public bool Enabled { get; set; }
 
   /// <summary>
@@ -161,7 +161,7 @@ public record EventData
   /// </summary>
   [JsonPropertyName("multiplex")]
   [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-  [JsonConverter(typeof(Common.BoolToIntJsonConverter))]
+  [JsonConverter(typeof(Common.IntToBoolJsonConverter))]
   public bool? Multiplex { get; set; }
 
   /// <summary>
@@ -244,6 +244,7 @@ public record EventData
   ///   An object describing when to run scheduled jobs.
   /// </summary>
   [JsonPropertyName("timing")]
+  [JsonConverter(typeof(Common.HandleBoolForObjJsonConverter))]
   public Timing? Timing { get; set; }
 
   /// <summary>

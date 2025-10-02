@@ -25,7 +25,7 @@ internal static class Common
           response.Description));
   }
 
-  public class BoolToIntJsonConverter : JsonConverter<bool>
+  public class IntToBoolJsonConverter : JsonConverter<bool>
   {
     public override bool Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
@@ -35,6 +35,21 @@ internal static class Common
     public override void Write(Utf8JsonWriter writer, bool value, JsonSerializerOptions options)
     {
       writer.WriteNumberValue(value ? 1 : 0);
+    }
+  }
+
+  public class HandleBoolForObjJsonConverter : JsonConverter<Timing?>
+  {
+    public override Timing? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+      // Cronicle has been known to set obj to "false"
+      // When it happens, translate that to a null object
+      return null;
+    }
+
+    public override void Write(Utf8JsonWriter writer, Timing? value, JsonSerializerOptions options)
+    {
+      writer.WriteNullValue();
     }
   }
 

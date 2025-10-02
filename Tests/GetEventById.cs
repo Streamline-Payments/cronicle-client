@@ -1,4 +1,5 @@
-﻿using CronicleClient;
+﻿using System.Text.Json;
+using CronicleClient;
 using CronicleClient.Models;
 using FluentAssertions;
 using Xunit.Abstractions;
@@ -91,5 +92,42 @@ public class GetEventById(ITestOutputHelper outputHelper)
     // Act & Assert
     await FluentActions.Invoking(() => _cronicleClient.Event.GetById(invalidId, _cancellationToken))
       .Should().ThrowAsync<Exception>();
+  }
+
+  [Fact(DisplayName = "Parse an event with bool timing value")]
+  public async Task GetBoolTimingEvent()
+  {
+    // Arrange
+    var newEvent = """
+                    {
+                     "Title": "A title",
+                     "Enabled": true,
+                     "Category": "createInvoice",
+                     "Plugin": "testplug",
+                     "Target": "allgrp",
+                     "Timing": false
+                   }
+                   """;
+
+
+    // Act
+    var newEventDetails = JsonSerializer.Deserialize<NewEvent>(newEvent);
+    newEventDetails.Should().NotBeNull();
+    newEventDetails!.Timing.Should().BeNull();
+
+    // Act
+    var eventDataDetails = JsonSerializer.Deserialize<EventData>(newEvent);
+    eventDataDetails.Should().NotBeNull();
+    eventDataDetails!.Timing.Should().BeNull();
+
+    // Act
+    var newEventStr = JsonSerializer.Serialize(newEventDetails);
+    newEventStr.Should().NotBeEmpty();
+    newEventStr.Should().Contain("\"timing\":null");
+
+    // Act
+    var eventDataStr = JsonSerializer.Serialize(eventDataDetails);
+    eventDataStr.Should().NotBeEmpty();
+    eventDataStr.Should().Contain("\"timing\":null");
   }
 }

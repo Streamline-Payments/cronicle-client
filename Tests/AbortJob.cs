@@ -19,7 +19,7 @@ public class AbortJob(ITestOutputHelper outputHelper)
     {
       Title = "A title for abort",
       Enabled = true,
-      Category = "general",
+      Category = "cmga2zvlc1j",
       Plugin = "testplug",
       Target = "allgrp",
       Timing = new Timing
@@ -55,7 +55,7 @@ public class AbortJob(ITestOutputHelper outputHelper)
     {
       Title = "A title for abort",
       Enabled = true,
-      Category = "general",
+      Category = "cmga2zvlc1j",
       Plugin = "testplug",
       Target = "allgrp",
       Timing = new Timing
@@ -117,7 +117,7 @@ public class AbortJob(ITestOutputHelper outputHelper)
     {
       Title = "A title",
       Enabled = true,
-      Category = "general",
+      Category = "cmga2zvlc1j",
       Plugin = "testplug",
       Target = "allgrp",
       Timing = new Timing

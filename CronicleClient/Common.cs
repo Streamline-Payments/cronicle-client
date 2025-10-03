@@ -38,18 +38,33 @@ internal static class Common
     }
   }
 
-  public class HandleBoolForObjJsonConverter : JsonConverter<Timing?>
+  public class TimingJsonConverter : JsonConverter<Timing?>
   {
     public override Timing? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
       // Cronicle has been known to set obj to "false"
       // When it happens, translate that to a null object
-      return null;
+      return reader.TokenType switch
+      {
+        JsonTokenType.Number => null,
+        JsonTokenType.String => null,
+        JsonTokenType.True => null,
+        JsonTokenType.False => null,
+        JsonTokenType.Null => null,
+        JsonTokenType.StartObject => JsonSerializer.Deserialize<Timing>(ref reader, options),
+        _ => throw new JsonException()
+      };
     }
 
     public override void Write(Utf8JsonWriter writer, Timing? value, JsonSerializerOptions options)
     {
-      writer.WriteNullValue();
+      if (value is null)
+      {
+        writer.WriteNullValue();
+        return;
+      }
+
+      JsonSerializer.Serialize(writer, value, options);
     }
   }
 

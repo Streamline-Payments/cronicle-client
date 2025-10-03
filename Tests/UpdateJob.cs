@@ -19,7 +19,7 @@ public class UpdateJob(ITestOutputHelper outputHelper)
     {
       Title = "A title for job update",
       Enabled = true,
-      Category = "general",
+      Category = "cmga2zvlc1j",
       Plugin = "testplug",
       Target = "allgrp",
       Timing = new Timing
@@ -60,7 +60,7 @@ public class UpdateJob(ITestOutputHelper outputHelper)
     {
       Title = "Event to update job CPU limit",
       Enabled = true,
-      Category = "general",
+      Category = "cmga2zvlc1j",
       Plugin = "testplug",
       Target = "allgrp",
       Timing = new Timing
@@ -131,7 +131,7 @@ public class UpdateJob(ITestOutputHelper outputHelper)
     {
       Title = "Event to update job completed",
       Enabled = true,
-      Category = "general",
+      Category = "cmga2zvlc1j",
       Plugin = "testplug",
       Target = "allgrp",
       Timing = new Timing
@@ -175,7 +175,7 @@ public class UpdateJob(ITestOutputHelper outputHelper)
     {
       Title = "Event to update job CPU aborted",
       Enabled = true,
-      Category = "general",
+      Category = "cmga2zvlc1j",
       Plugin = "testplug",
       Target = "allgrp",
       Timing = new Timing

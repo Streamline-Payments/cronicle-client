@@ -23,7 +23,7 @@ public class ChainReaction(ITestOutputHelper outputHelper)
         {
             Title= $"Chain event {randomIdentifier}",
             Enabled= true,
-            Category = "general",
+            Category = "cmga2zvlc1j",
             Plugin = "testplug",
             Target = "allgrp",
             Parameters = new Dictionary<string, object>
@@ -38,7 +38,7 @@ public class ChainReaction(ITestOutputHelper outputHelper)
         {
             Title = $"Event parent of a chain {randomIdentifier}",
             Enabled = true,
-            Category = "general",
+            Category = "cmga2zvlc1j",
             Plugin = "testplug",
             Target = "allgrp",
             Chain = chainId,
@@ -96,7 +96,7 @@ public class ChainReaction(ITestOutputHelper outputHelper)
         {
             Title = $"Chain event {randomIdentifier}",
             Enabled = true,
-            Category = "general",
+            Category = "cmga2zvlc1j",
             Plugin = "testplug",
             Target = "allgrp",
             Parameters = new Dictionary<string, object>
@@ -111,7 +111,7 @@ public class ChainReaction(ITestOutputHelper outputHelper)
         {
             Title = $"Event parent of a chain {randomIdentifier}",
             Enabled = true,
-            Category = "general",
+            Category = "cmga2zvlc1j",
             Plugin = "testplug",
             Target = "allgrp",
             Chain = chainId,
@@ -156,7 +156,7 @@ public class ChainReaction(ITestOutputHelper outputHelper)
         {
             Title = $"Chain event {randomIdentifier}",
             Enabled = true,
-            Category = "general",
+            Category = "cmga2zvlc1j",
             Plugin = "testplug",
             Target = "allgrp",
             Parameters = new Dictionary<string, object>
@@ -180,7 +180,7 @@ public class ChainReaction(ITestOutputHelper outputHelper)
         {
             Title = $"Event parent of a chain {randomIdentifier}",
             Enabled = true,
-            Category = "general",
+            Category = "cmga2zvlc1j",
             Plugin = "testplug",
             Target = "allgrp",
             Chain = chainId,

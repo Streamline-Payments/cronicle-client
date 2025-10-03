@@ -19,7 +19,7 @@ public class GetJobs(ITestOutputHelper outputHelper)
     {
       Title = "New title",
       Enabled = true,
-      Category = "general",
+      Category = "cmga2zvlc1j",
       Plugin = "testplug",
       Target = "allgrp",
       Timing = new Timing
@@ -65,7 +65,7 @@ public class GetJobs(ITestOutputHelper outputHelper)
     {
       Title = "New title",
       Enabled = true,
-      Category = "general",
+      Category = "cmga2zvlc1j",
       Plugin = "testplug",
       Target = "allgrp",
       Timing = new Timing
@@ -110,7 +110,7 @@ public class GetJobs(ITestOutputHelper outputHelper)
     {
       Title = "New title",
       Enabled = true,
-      Category = "general",
+      Category = "cmga2zvlc1j",
       Plugin = "testplug",
       Target = "allgrp",
       Timing = new Timing
@@ -154,7 +154,7 @@ public class GetJobs(ITestOutputHelper outputHelper)
     {
       Title = "No Completed Jobs",
       Enabled = true,
-      Category = "general",
+      Category = "cmga2zvlc1j",
       Plugin = "testplug",
       Target = "allgrp",
       Timing = new Timing

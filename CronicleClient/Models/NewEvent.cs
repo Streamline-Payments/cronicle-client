@@ -216,7 +216,7 @@ public record NewEvent
   ///   An object describing when to run scheduled jobs.
   /// </summary>
   [JsonPropertyName("timing")]
-  [JsonConverter(typeof(Common.HandleBoolForObjJsonConverter))]
+  [JsonConverter(typeof(Common.TimingJsonConverter))]
   public Timing? Timing { get; set; }
 
   /// <summary>

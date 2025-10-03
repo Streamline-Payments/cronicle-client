@@ -20,7 +20,7 @@ public class GetEventById(ITestOutputHelper outputHelper)
        {
          Title = "A title",
          Enabled = true,
-         Category = "general",
+         Category = "cmga2zvlc1j",
          Plugin = "testplug",
          Target = "allgrp",
          Timing = new Timing
@@ -53,7 +53,7 @@ public class GetEventById(ITestOutputHelper outputHelper)
     {
       Title = "A title",
       Enabled = true,
-      Category = "createInvoice",
+      Category = "cmga2zvlc1j",
       Plugin = "testplug",
       Target = "allgrp",
       Timing = null
@@ -100,15 +100,60 @@ public class GetEventById(ITestOutputHelper outputHelper)
     // Arrange
     var newEvent = """
                     {
-                     "Title": "A title",
-                     "Enabled": true,
-                     "Category": "createInvoice",
-                     "Plugin": "testplug",
-                     "Target": "allgrp",
-                     "Timing": false
+                     "catch_up": 0,
+                     "category": "general",
+                     "enabled": 1,
+                     "params": {
+                       "log_level": "",
+                       "unit_of_time": "Day",
+                       "start_date": ""
+                     },
+                     "plugin": "12345",
+                     "retries": 0,
+                     "target": "allgrp",
+                     "timezone": "UTC",
+                     "timing": false,
+                     "title": "API Enabled 45179 1759433458310.6936",
+                     "id": "emg9t94zs03",
+                     "modified": 1759448614,
+                     "created": 1759433458,
+                     "max_children": 1,
+                     "timeout": 0,
+                     "api_key": "aaaaaaaaaaaa",
+                     "salt": "",
+                     "silent": 0,
+                     "concurrent_arg": 0,
+                     "graph_icon": "",
+                     "args": "",
+                     "ticks": "",
+                     "algo": "random",
+                     "multiplex": 0,
+                     "stagger": 0,
+                     "options": {},
+                     "start_time": null,
+                     "end_time": null,
+                     "interval": false,
+                     "interval_start": false,
+                     "repeat": false,
+                     "retry_delay": 0,
+                     "detached": 0,
+                     "queue": 0,
+                     "queue_max": 0,
+                     "chain": "",
+                     "chain_error": "",
+                     "notify_success": "",
+                     "notify_fail": "",
+                     "web_hook": "",
+                     "web_hook_start": "",
+                     "web_hook_error": 0,
+                     "cpu_limit": 0,
+                     "cpu_sustain": 0,
+                     "memory_limit": 0,
+                     "memory_sustain": 0,
+                     "log_max_size": 0,
+                     "notes": ""
                    }
                    """;
-
 
     // Act
     var newEventDetails = JsonSerializer.Deserialize<NewEvent>(newEvent);
@@ -129,5 +174,77 @@ public class GetEventById(ITestOutputHelper outputHelper)
     var eventDataStr = JsonSerializer.Serialize(eventDataDetails);
     eventDataStr.Should().NotBeEmpty();
     eventDataStr.Should().Contain("\"timing\":null");
+  }
+
+  [Fact(DisplayName = "Parse an event with null timing value")]
+  public async Task GetNullTimingEvent()
+  {
+    // Arrange
+    var newEvent = """
+                    {
+                     "catch_up": 0,
+                     "category": "general",
+                     "enabled": 1,
+                     "params": {
+                       "log_level": "",
+                       "unit_of_time": "Day",
+                       "start_date": ""
+                     },
+                     "plugin": "12345",
+                     "retries": 0,
+                     "target": "allgrp",
+                     "timezone": "UTC",
+                     "timing": null,
+                     "title": "API Enabled 45179 1759433458310.6936",
+                     "id": "emg9t94zs03",
+                     "modified": 1759448614,
+                     "created": 1759433458,
+                     "max_children": 1,
+                     "timeout": 0,
+                     "api_key": "aaaaaaaaaaaa",
+                     "salt": "",
+                     "silent": 0,
+                     "concurrent_arg": 0,
+                     "graph_icon": "",
+                     "args": "",
+                     "ticks": "",
+                     "algo": "random",
+                     "multiplex": 0,
+                     "stagger": 0,
+                     "options": {},
+                     "start_time": null,
+                     "end_time": null,
+                     "interval": false,
+                     "interval_start": false,
+                     "repeat": false,
+                     "retry_delay": 0,
+                     "detached": 0,
+                     "queue": 0,
+                     "queue_max": 0,
+                     "chain": "",
+                     "chain_error": "",
+                     "notify_success": "",
+                     "notify_fail": "",
+                     "web_hook": "",
+                     "web_hook_start": "",
+                     "web_hook_error": 0,
+                     "cpu_limit": 0,
+                     "cpu_sustain": 0,
+                     "memory_limit": 0,
+                     "memory_sustain": 0,
+                     "log_max_size": 0,
+                     "notes": ""
+                   }
+                   """;
+
+    // Act
+    var newEventDetails = JsonSerializer.Deserialize<NewEvent>(newEvent);
+    newEventDetails.Should().NotBeNull();
+    newEventDetails!.Timing.Should().BeNull();
+
+    // Act
+    var eventDataDetails = JsonSerializer.Deserialize<EventData>(newEvent);
+    eventDataDetails.Should().NotBeNull();
+    eventDataDetails!.Timing.Should().BeNull();
   }
 }

@@ -19,7 +19,7 @@ public class UpdateEvent(ITestOutputHelper outputHelper)
     {
       Title = "A title for update",
       Enabled = true,
-      Category = "general",
+      Category = "cmga2zvlc1j",
       Plugin = "testplug",
       Target = "allgrp",
       Timing = new Timing
@@ -73,7 +73,7 @@ public class UpdateEvent(ITestOutputHelper outputHelper)
     {
       Title = "A title for update",
       Enabled = true,
-      Category = "general",
+      Category = "cmga2zvlc1j",
       Plugin = "testplug",
       Target = "allgrp",
       Timing = new Timing

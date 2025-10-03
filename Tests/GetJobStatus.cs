@@ -19,7 +19,7 @@ public class GetJobStatus(ITestOutputHelper outputHelper)
     {
       Title = "A job event",
       Enabled = true,
-      Category = "general",
+      Category = "cmga2zvlc1j",
       Plugin = "testplug",
       Target = "allgrp",
       Timing = new Timing
@@ -66,7 +66,7 @@ public class GetJobStatus(ITestOutputHelper outputHelper)
     {
       Title = "Abort job event",
       Enabled = true,
-      Category = "general",
+      Category = "cmga2zvlc1j",
       Plugin = "testplug",
       Target = "allgrp",
       Timing = new Timing
@@ -105,7 +105,7 @@ public class GetJobStatus(ITestOutputHelper outputHelper)
     {
       Title = "Completed job event",
       Enabled = true,
-      Category = "general",
+      Category = "cmga2zvlc1j",
       Plugin = "testplug",
       Target = "allgrp",
       Timing = new Timing

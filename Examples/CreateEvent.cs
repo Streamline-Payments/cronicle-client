@@ -18,7 +18,7 @@ public class CreateEvent(string croniclePrimaryServerUrl, string cronicleApiKey,
     var cronicleEvent = new NewEvent
     {
       Title = "This is my event",
-      Category = "general",
+      Category = "cmga2zvlc1j",
       Enabled = true,
       Plugin = "XXXXX",
       Target = "allgrp",
@@ -51,7 +51,7 @@ public class CreateEvent(string croniclePrimaryServerUrl, string cronicleApiKey,
     var cronicleEvent = new NewEvent
     {
       Title = "This is my event",
-      Category = "general",
+      Category = "cmga2zvlc1j",
       Enabled = true,
       Plugin = "XXXXX",
       Target = "allgrp",

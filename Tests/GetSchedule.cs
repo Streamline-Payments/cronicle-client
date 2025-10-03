@@ -59,7 +59,7 @@ public class GetSchedule(ITestOutputHelper outputHelper)
     {
       Title = "New event",
       Enabled = true,
-      Category = "general",
+      Category = "cmga2zvlc1j",
       Plugin = "testplug",
       Target = "allgrp",
       Timing = new Timing
@@ -99,7 +99,7 @@ public class GetSchedule(ITestOutputHelper outputHelper)
       {
         Title = $"New event {i + 1}",
         Enabled = true,
-        Category = "general",
+        Category = "cmga2zvlc1j",
         Plugin = "testplug",
         Target = "allgrp",
         Timing = new Timing

@@ -19,7 +19,7 @@ public class GetEventByTitle(ITestOutputHelper outputHelper)
     {
       Title = "New title",
       Enabled = true,
-      Category = "general",
+      Category = "cmga2zvlc1j",
       Plugin = "shellplug",
       Target = "allgrp",
       Timing = new Timing
